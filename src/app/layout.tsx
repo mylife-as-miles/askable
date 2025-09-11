@@ -13,9 +13,9 @@ const instrumentSans = Instrument_Sans({
 
 export const metadata: Metadata = {
   title: `${APP_NAME}`,
-  description: 'Talk with your CSV with Together.ai',
+  description: 'Askable — chat with your CSVs using Together.ai',
   openGraph: {
-  images: ['https://askable.com/og.jpg'],
+  images: ['/og.jpg'],
   },
 };
 

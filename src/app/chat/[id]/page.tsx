@@ -26,7 +26,7 @@ export async function generateMetadata({
       ? `Chat about CSV columns: ${chat.csvHeaders.join(", ")}`
       : "Chat with your CSV using Together.ai",
     openGraph: {
-  images: ["https://askable.com/og.jpg"],
+  images: ["/og.jpg"],
     },
   };
 }
