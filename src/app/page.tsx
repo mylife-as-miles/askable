@@ -149,11 +149,9 @@ function AskableClient({
             <span className="text-slate-400">...</span>
           </p>
           <div className="flex flex-col gap-3">
-            {Array(3)
-              .fill(null)
-              .map((_, idx) => (
-                <QuestionSuggestionCard key={idx} question={""} isLoading />
-              ))}
+            {Array.from({ length: 3 }).map((_, idx: number) => (
+              <QuestionSuggestionCard key={`loading-${idx}`} question={""} isLoading />
+            ))}
           </div>
         </div>
       )}
@@ -165,7 +163,7 @@ function AskableClient({
             <span className="text-slate-400">based on your uploaded CSV:</span>
           </p>
           <div className="flex flex-col gap-3">
-            {suggestedQuestions.map((suggestion) => (
+            {suggestedQuestions.map((suggestion: SuggestedQuestion) => (
               <QuestionSuggestionCard
                 key={suggestion.id}
                 question={suggestion.text}

@@ -5,10 +5,7 @@ interface GithubBannerProps {
   onClose: () => void;
 }
 
-export const GithubBanner: React.FC<GithubBannerProps> = ({
-  show,
-  onClose,
-}) => {
+export const GithubBanner: React.FC<GithubBannerProps> = ({ show, onClose }) => {
   const [stars, setStars] = useState<string>("-");
 
   useEffect(() => {
@@ -56,7 +53,7 @@ export const GithubBanner: React.FC<GithubBannerProps> = ({
       </div>
       <button
         className="cursor-pointer p-2 absolute right-2 z-10"
-        onClick={(evt) => {
+        onClick={(evt: React.MouseEvent<HTMLButtonElement>) => {
           evt.preventDefault();
           evt.stopPropagation();
           onClose();
