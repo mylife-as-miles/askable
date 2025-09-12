@@ -41,9 +41,9 @@ export function HeroSection() {
               <Upload className="size-4" /> Upload CSV
             </Button>
           </a>
-          <a href="https://github.com/mylife-as-miles/askable" target="_blank" rel="noreferrer">
+          <a href="/" rel="noreferrer">
             <Button variant="outline" size="lg" className="gap-2">
-              Read docs <ArrowRight className="size-4" />
+              Learn more <ArrowRight className="size-4" />
             </Button>
           </a>
         </div>

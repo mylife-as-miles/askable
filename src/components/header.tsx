@@ -5,8 +5,6 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 import { ChatHistoryMenu } from "./ChatHistoryMenu";
-import { GithubBanner } from "./GithubBanner";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/utils";
 import TooltipUsage from "./TooltipUsage";
 
@@ -15,10 +13,6 @@ interface HeaderProps {
 }
 
 export function Header({ chatId }: HeaderProps) {
-  const [showBanner, setShowBanner] = useLocalStorage<boolean>(
-    "showBanner",
-    true
-  );
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -39,9 +33,7 @@ export function Header({ chatId }: HeaderProps) {
           h-[60px]
           `,
 
-          showBanner
-            ? "mt-[32px] md:h-[calc(100vh-32px)]"
-            : "md:h-[calc(100vh)]"
+          "md:h-[calc(100vh)]"
         )}
         style={{
           boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
@@ -83,20 +75,9 @@ export function Header({ chatId }: HeaderProps) {
           <TooltipUsage />
         </div>
       </aside>
-      {/* Spacer for mobile header height */}
-      <GithubBanner show={showBanner} onClose={() => setShowBanner(false)} />
-      <div
-        className={cn(
-          "block md:hidden",
-          showBanner ? "min-h-[94px]" : "min-h-[70px]"
-        )}
-      />
-      <div
-        className={cn(
-          "hidden md:block",
-          showBanner ? "min-h-[44px]" : "min-h-[10px]"
-        )}
-      />
+  {/* Spacer for mobile header height */}
+  <div className={cn("block md:hidden", "min-h-[70px]")} />
+  <div className={cn("hidden md:block", "min-h-[10px]")} />
     </>
   );
 }
