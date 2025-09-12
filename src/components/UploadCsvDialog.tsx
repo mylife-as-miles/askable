@@ -79,20 +79,31 @@ export function UploadCsvDialog({ open, onOpenChange, onFileSelected, loading = 
               </div>
               {/* Stepper */}
               <div className="flex flex-wrap items-center gap-3 text-xs">
-                {[
-                  { key: "reading", label: "Reading headers" },
-                  { key: "uploading", label: "Uploading" },
-                  { key: "generating", label: "Generating questions" },
-                ].map(({ key, label }) => {
-                  const done = step === "done" || ["uploading", "generating", "done"].includes(step) && key === "reading" || ["generating", "done"].includes(step) && key === "uploading" || step === "done" && key === "generating";
-                  const active = step === key;
-                  return (
-                    <div key={key} className="inline-flex items-center gap-1.5">
-                      <CheckCircle2 className={cn("size-4", done ? "text-emerald-400" : active ? "text-white" : "text-white/50")} />
-                      <span className={cn(done ? "text-white" : active ? "text-white" : "text-white/70")}>{label}</span>
-                    </div>
-                  );
-                })}
+                {(() => {
+                  type Step = "idle" | "reading" | "uploading" | "generating" | "done";
+                  const order: Record<Step, number> = {
+                    idle: 0,
+                    reading: 1,
+                    uploading: 2,
+                    generating: 3,
+                    done: 4,
+                  };
+                  const STEPS: { key: Exclude<Step, "idle" | "done">; label: string }[] = [
+                    { key: "reading", label: "Reading headers" },
+                    { key: "uploading", label: "Uploading" },
+                    { key: "generating", label: "Generating questions" },
+                  ];
+                  return STEPS.map(({ key, label }) => {
+                    const done = order[step as Step] > order[key];
+                    const active = step === key;
+                    return (
+                      <div key={key} className="inline-flex items-center gap-1.5">
+                        <CheckCircle2 className={cn("size-4", done ? "text-emerald-400" : active ? "text-white" : "text-white/50")} />
+                        <span className={cn(done ? "text-white" : active ? "text-white" : "text-white/70")}>{label}</span>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             </div>
           )}
