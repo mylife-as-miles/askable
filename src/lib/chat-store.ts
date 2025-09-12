@@ -36,6 +36,11 @@ export async function createChat({
   const id = generateId();
 
   // use userQuestion to generate a title for the chat
+  if (!process.env.TOGETHER_API_KEY) {
+    throw new Error(
+      "TOGETHER_API_KEY is not set. Please configure it in your environment to create chats."
+    );
+  }
   const { text: title } = await generateText({
     model: togetherAISDKClient("meta-llama/Llama-3.3-70B-Instruct-Turbo"),
     prompt: generateTitlePrompt({ csvHeaders, userQuestion }),

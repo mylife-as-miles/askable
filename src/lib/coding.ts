@@ -1,4 +1,4 @@
-import { codeInterpreter } from "@/lib/clients";
+import { getCodeInterpreter } from "@/lib/clients";
 import { CodeInterpreterExecuteParams } from "together-ai/resources.mjs";
 
 interface CodeInterpreterOutput {
@@ -50,7 +50,7 @@ export async function runPython(
       // kwargs.files = files;
     }
 
-    const response = await codeInterpreter.execute(kwargs);
+  const response = await getCodeInterpreter().execute(kwargs);
 
     const data = response.data as TogetherCodeInterpreterResponseData;
 

@@ -84,7 +84,8 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
       return;
     }
     // Fetch chat metadata from backend
-    fetch("/api/chat/history", {
+  if (typeof window === "undefined") return; // avoid during build/SSR
+  fetch("/api/chat/history", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ids }),
