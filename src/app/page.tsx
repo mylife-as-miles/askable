@@ -2,7 +2,7 @@
 
 import React, { Suspense, useState, useCallback } from "react";
 import { Header } from "@/components/header";
-import { UploadArea } from "@/components/upload-area";
+// import { UploadArea } from "@/components/upload-area";
 import { HeroSection } from "@/components/hero-section";
 import { QuestionSuggestionCard } from "@/components/question-suggestion-card";
 import { extractCsvData } from "@/lib/csvUtils";
@@ -12,6 +12,7 @@ import { PromptInput } from "@/components/PromptInput";
 import { toast } from "sonner";
 import { useLLMModel } from "@/hooks/useLLMModel";
 import { redirect } from "next/navigation";
+import { UploadCsvDialog } from "@/components/UploadCsvDialog";
 import Loading from "./chat/[id]/loading";
 
 export interface SuggestedQuestion {
@@ -27,6 +28,7 @@ function AskableClient({
   const { uploadToS3 } = useS3Upload();
   const { selectedModelSlug } = useLLMModel();
   const [localFile, setLocalFile] = useState<File | null>(null);
+  const [uploadOpen, setUploadOpen] = useState(false);
   const [suggestedQuestions, setSuggestedQuestions] = useState<
     SuggestedQuestion[]
   >([]);
@@ -82,6 +84,21 @@ function AskableClient({
     }
   }, []);
 
+  // Open dialog when clicking the hero "Upload CSV" button (#upload hash)
+  React.useEffect(() => {
+    const openIfUploadHash = () => {
+      if (typeof window === "undefined") return;
+      if (window.location.hash === "#upload") {
+        setUploadOpen(true);
+        // remove the hash without reloading
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+      }
+    };
+    openIfUploadHash();
+    window.addEventListener("hashchange", openIfUploadHash);
+    return () => window.removeEventListener("hashchange", openIfUploadHash);
+  }, []);
+
   const handleSuggestionClick = (question: string) => {
     handleSendMessage(question);
   };
@@ -120,11 +137,13 @@ function AskableClient({
 
   return (
     <>
-      <div id="upload" className="scroll-mt-24 w-full">
-        <UploadArea onFileChange={handleFileUpload} uploadedFile={localFile} />
-      </div>
+      <UploadCsvDialog
+        open={uploadOpen}
+        onOpenChange={setUploadOpen}
+        onFileSelected={handleFileUpload}
+      />
       {/* Large Input Area */}
-      {localFile && (
+  {localFile && (
         <div className="w-full max-w-sm md:max-w-2xl mx-auto">
           <PromptInput
             value={inputValue}
@@ -188,13 +207,13 @@ export default function Askable() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+    <Header />
       <div className="flex flex-col items-center px-4 md:px-6 max-w-[655px] mx-auto">
         <div className="flex flex-col items-center md:items-start pt-16 md:pt-[132px] pb-8 mx-auto w-full">
-          <HeroSection />
+      <HeroSection />
         </div>
         <Suspense fallback={<div>Loading...</div>}>
-          <AskableClient setIsLoading={setIsLoading} />
+      <AskableClient setIsLoading={setIsLoading} />
         </Suspense>
       </div>
     </div>

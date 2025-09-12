@@ -31,7 +31,7 @@ export function HeroSection() {
 
         {/* Subhead */}
         <p className="mt-4 text-slate-600 text-center md:text-left max-w-[44ch]">
-          Upload a CSV, ask a question, and receive Python code and visualizations using pandas and matplotlib—ready to run.
+          Upload a CSV, then ask a question to generate Python code and charts using pandas and matplotlib—ready to run.
         </p>
 
         {/* CTAs */}
