@@ -2,6 +2,7 @@
 
 import React, { Suspense, useState, useCallback } from "react";
 import { Header } from "@/components/header";
+import { AppSidebar } from "@/components/AppSidebar";
 // import { UploadArea } from "@/components/upload-area";
 import { HeroSection } from "@/components/hero-section";
 import { QuestionSuggestionCard } from "@/components/question-suggestion-card";
@@ -225,7 +226,7 @@ export default function Askable() {
 
   return (
     <div className="min-h-screen bg-white">
-    <Header />
+  <AppSidebar />
       <div className="flex flex-col items-center px-4 md:px-6 max-w-[655px] mx-auto">
         <div className="flex flex-col items-center md:items-start pt-16 md:pt-[132px] pb-8 mx-auto w-full">
       <HeroSection />

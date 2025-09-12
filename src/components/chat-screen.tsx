@@ -3,6 +3,7 @@
 import { useChat } from "@ai-sdk/react";
 import React, { useEffect, useState, useRef } from "react";
 import { Header } from "@/components/header";
+import { AppSidebar } from "@/components/AppSidebar";
 import { ChatInput } from "@/components/ChatInput";
 import { MemoizedMarkdown } from "./MemoizedMarkdown";
 import { CodePane } from "./chatTools/CodePane";
@@ -279,7 +280,7 @@ export function ChatScreen({
 
   return (
     <div className="min-h-screen bg-white flex flex-col w-full h-screen">
-      <Header chatId={id} />
+  <AppSidebar chatId={id} />
 
       {/* Context usage bar */}
       <div className="w-full flex flex-col items-center py-2">
@@ -300,7 +301,7 @@ export function ChatScreen({
         </div>
       </div>
 
-      <div className="flex flex-col md:ml-[70px] flex-1">
+  <div className="flex flex-col md:ml-[70px] flex-1">
         {/* Messages */}
         <div
           className="flex-1 overflow-y-auto p-4 gap-4 flex flex-col mx-auto max-w-[700px] w-full"
