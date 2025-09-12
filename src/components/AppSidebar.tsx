@@ -3,7 +3,6 @@ import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { ChatHistoryMenu } from "@/components/ChatHistoryMenu";
 import TooltipUsage from "@/components/TooltipUsage";
@@ -59,12 +58,12 @@ export function AppSidebar({ chatId }: { chatId?: string }) {
         <TooltipUsage />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="mt-2 w-10 h-10 p-0 rounded-md">
-              <Avatar className="h-8 w-8 rounded-md">
-                <AvatarImage src="/avatar.png" alt="User" />
-                <AvatarFallback className="rounded-md">U</AvatarFallback>
-              </Avatar>
-              <ChevronsUpDown className="size-3 ml-1 text-slate-400" />
+            <Button variant="ghost" size="sm" className="mt-2 w-auto h-10 px-2 rounded-md gap-1">
+              <div className="h-8 w-8 rounded-md overflow-hidden bg-slate-200 flex items-center justify-center text-slate-600 text-xs">
+                <img src="/avatar.png" alt="User" className="h-full w-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                <span className="absolute">U</span>
+              </div>
+              <ChevronsUpDown className="size-3 text-slate-400" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="right" align="start" className="min-w-48">
