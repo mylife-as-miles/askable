@@ -29,6 +29,9 @@ function AskableClient({
   const { selectedModelSlug } = useLLMModel();
   const [localFile, setLocalFile] = useState<File | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [uploadStep, setUploadStep] = useState<
+    "idle" | "reading" | "uploading" | "generating" | "done"
+  >("idle");
   const [suggestedQuestions, setSuggestedQuestions] = useState<
     SuggestedQuestion[]
   >([]);
@@ -42,6 +45,7 @@ function AskableClient({
     if (file && file.type === "text/csv") {
       setLocalFile(file);
       setIsProcessing(true);
+      setUploadStep("reading");
 
       try {
         const { headers, sampleRows } = await extractCsvData(file);
@@ -50,12 +54,13 @@ function AskableClient({
           alert("Please upload a CSV with headers.");
           setLocalFile(null);
           setIsProcessing(false);
+          setUploadStep("idle");
           return;
         }
 
         setCsvRows(sampleRows);
         setCsvHeaders(headers);
-
+        setUploadStep("uploading");
         const uploadPromise = uploadToS3(file);
 
         const response = await fetch("/api/generate-questions", {
@@ -65,6 +70,8 @@ function AskableClient({
           },
           body: JSON.stringify({ columns: headers }),
         });
+
+        setUploadStep("generating");
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -76,8 +83,13 @@ function AskableClient({
 
         const data = await response.json();
         setSuggestedQuestions(data.questions);
+
+        setUploadStep("done");
+        toast.success("CSV ready. Ask a question →");
+        setUploadOpen(false);
       } catch (error) {
         console.error("Failed to process CSV file:", error);
+        setUploadStep("idle");
       } finally {
         setIsProcessing(false);
       }
@@ -144,6 +156,9 @@ function AskableClient({
         loading={isProcessing}
         fileName={localFile?.name ?? null}
         fileSize={localFile?.size ?? null}
+  step={uploadStep}
+  headers={csvHeaders}
+  sampleRows={csvRows}
       />
       {/* Large Input Area */}
   {localFile && (
