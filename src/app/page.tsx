@@ -120,7 +120,9 @@ function AskableClient({
 
   return (
     <>
-      <UploadArea onFileChange={handleFileUpload} uploadedFile={localFile} />
+      <div id="upload" className="scroll-mt-24 w-full">
+        <UploadArea onFileChange={handleFileUpload} uploadedFile={localFile} />
+      </div>
       {/* Large Input Area */}
       {localFile && (
         <div className="w-full max-w-sm md:max-w-2xl mx-auto">

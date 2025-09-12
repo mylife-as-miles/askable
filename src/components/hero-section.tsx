@@ -1,18 +1,59 @@
 import React from "react";
 import { CodeDemo } from "@/components/CodeDemo";
+import { Button } from "@/components/ui/button";
+import { Upload, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 
 export function HeroSection() {
   return (
-    <div className="w-full flex flex-col md:flex-row items-center md:items-start md:justify-between gap-8">
-      <div className="max-w-[277px] md:max-w-[420px] flex flex-col items-center md:items-start">
-        <img src="/logo.svg" className="size-[42px]  mb-8" />
+    <div className="w-full flex flex-col md:flex-row items-center md:items-start md:justify-between gap-10">
+      <div className="max-w-xl flex flex-col items-center md:items-start">
+        <img src="/logo.svg" alt="Askable" className="size-10 mb-6" />
+
+        {/* Badges */}
+        <div className="flex items-center gap-2 mb-4 text-xs text-slate-600">
+          <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 bg-white/70 backdrop-blur">
+            <Sparkles className="size-3" />
+            AI for data analysis
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 bg-white/70 backdrop-blur">
+            <ShieldCheck className="size-3" />
+            Private by default
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 bg-white/70 backdrop-blur">
+            OpenRouter-powered
+          </span>
+        </div>
+
         {/* Title */}
-        <h1 className="text-[28px] font-medium text-slate-900 text-center md:text-left mb-8 leading-tight">
-          What do you want to analyze?
+        <h1 className="text-[28px] md:text-[40px] font-semibold text-slate-900 text-center md:text-left leading-tight tracking-tight">
+          Ask questions of your CSVs. Get charts, code, and insight.
         </h1>
+
+        {/* Subhead */}
+        <p className="mt-4 text-slate-600 text-center md:text-left max-w-[44ch]">
+          Upload a CSV, ask a question, and receive Python code and visualizations using pandas and matplotlib—ready to run.
+        </p>
+
+        {/* CTAs */}
+        <div className="mt-6 flex items-center gap-3">
+          <a href="#upload">
+            <Button size="lg" className="gap-2">
+              <Upload className="size-4" /> Upload CSV
+            </Button>
+          </a>
+          <a href="https://github.com/mylife-as-miles/askable" target="_blank" rel="noreferrer">
+            <Button variant="outline" size="lg" className="gap-2">
+              Read docs <ArrowRight className="size-4" />
+            </Button>
+          </a>
+        </div>
       </div>
+
+      {/* Code demo */}
       <div className="hidden md:block">
-        <CodeDemo duration={8} delay={0.3} writing={true} cursor={true} />
+        <div className="rounded-xl border shadow-sm bg-white p-2">
+          <CodeDemo duration={8} delay={0.3} writing={true} cursor={true} />
+        </div>
       </div>
     </div>
   );
