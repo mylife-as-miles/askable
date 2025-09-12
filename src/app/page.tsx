@@ -141,6 +141,9 @@ function AskableClient({
         open={uploadOpen}
         onOpenChange={setUploadOpen}
         onFileSelected={handleFileUpload}
+        loading={isProcessing}
+        fileName={localFile?.name ?? null}
+        fileSize={localFile?.size ?? null}
       />
       {/* Large Input Area */}
   {localFile && (
