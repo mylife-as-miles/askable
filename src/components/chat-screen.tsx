@@ -5,6 +5,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Header } from "@/components/header";
 import { ChatInput } from "@/components/ChatInput";
 import { MemoizedMarkdown } from "./MemoizedMarkdown";
+import { CodePane } from "./chatTools/CodePane";
 import { type TogetherCodeInterpreterResponseData } from "@/lib/coding";
 import { type UIMessage } from "ai";
 import { ImageFigure } from "./chatTools/ImageFigure";
@@ -375,11 +376,19 @@ export function ChatScreen({
                       }
                     />
 
-                    <div className="text-slate-800 text-sm prose">
-                      <MemoizedMarkdown
-                        id={currentMessage.id}
-                        content={currentMessage.content}
-                      />
+                    {/* Render animated code pane for Python blocks, plus normal markdown below */}
+                    {(() => {
+                      const codeMatch = /```python\s*([\s\S]*?)\s*```/m.exec(
+                        currentMessage.content || ""
+                      );
+                      const code = codeMatch?.[1];
+                      return code ? (
+                        <CodePane code={code} lang="python" fileLabel="analysis.py" />
+                      ) : null;
+                    })()}
+
+                    <div className="text-slate-800 text-sm prose mt-3">
+                      <MemoizedMarkdown id={currentMessage.id} content={currentMessage.content} />
                     </div>
 
                     {currentMessage.isThinking && <CodeRunning />}
