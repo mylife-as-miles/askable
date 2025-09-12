@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { generateObject } from "ai";
 import { z } from "zod";
-import { togetherAISDKClient } from "@/lib/clients";
+import { openRouterClient } from "@/lib/clients";
 import { generateQuestionsPrompt } from "@/lib/prompts";
 
 const questionSchema = z.object({
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     console.log("Prompt:", generateQuestionsPrompt({ csvHeaders: columns }));
 
     const { object: generatedQuestions } = await generateObject({
-      model: togetherAISDKClient("meta-llama/Llama-4-Scout-17B-16E-Instruct"),
+  model: openRouterClient.languageModel("meta-llama/Llama-4-Scout-17B-16E-Instruct"),
       mode: "json",
       output: "array",
       schema: questionSchema,

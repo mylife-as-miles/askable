@@ -1,5 +1,4 @@
-import { getCodeInterpreter } from "@/lib/clients";
-import { CodeInterpreterExecuteParams } from "together-ai/resources.mjs";
+// Placeholder for future code execution provider (Together Code Interpreter removed)
 
 interface CodeInterpreterOutput {
   type: string;
@@ -39,48 +38,12 @@ export async function runPython(
   session_id?: string,
   files?: Array<{ name: string; encoding: string; content: string }>
 ): Promise<RunPythonResult> {
-  try {
-    const kwargs: CodeInterpreterExecuteParams = { code, language: "python" };
-
-    if (session_id) {
-      kwargs.session_id = session_id;
-    }
-
-    if (files) {
-      // kwargs.files = files;
-    }
-
-  const response = await getCodeInterpreter().execute(kwargs);
-
-    const data = response.data as TogetherCodeInterpreterResponseData;
-
-    console.log("Response data:");
-    console.dir(data);
-
-    const result: RunPythonResult = {
-      session_id: data.session_id || null,
-      status: data.status || "unknown",
-      outputs: [],
-    };
-
-    if (data.outputs) {
-      for (const output of data.outputs) {
-        result.outputs.push({ type: output.type, data: output.data });
-      }
-    }
-
-    if (data.errors) {
-      result.errors = data.errors;
-    }
-
-    return result;
-  } catch (e: any) {
-    const error_result: RunPythonResult = {
-      status: "error",
-      error_message: e.message || String(e),
-      session_id: null,
-      outputs: [],
-    };
-    return error_result;
-  }
+  // Together Code Interpreter was removed. Stub implementation returns a not-configured error.
+  return {
+    status: "error",
+    session_id: null,
+    outputs: [],
+    error_message:
+      "Code execution is not configured. Replace with your own code runner or integrate OpenRouter-compatible tool calls.",
+  };
 }

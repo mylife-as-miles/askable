@@ -5,7 +5,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Header } from "@/components/header";
 import { ChatInput } from "@/components/ChatInput";
 import { MemoizedMarkdown } from "./MemoizedMarkdown";
-import { TogetherCodeInterpreterResponseData } from "@/lib/coding";
+import { type TogetherCodeInterpreterResponseData } from "@/lib/coding";
 import { type UIMessage } from "ai";
 import { ImageFigure } from "./chatTools/ImageFigure";
 import { TerminalOutput } from "./chatTools/TerminalOutput";

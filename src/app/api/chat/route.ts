@@ -1,4 +1,4 @@
-import { togetherAISDKClient } from "@/lib/clients";
+import { openRouterClient } from "@/lib/clients";
 import {
   streamText,
   generateId,
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
   try {
     // Create a new model instance based on selectedModel
     const modelInstance = wrapLanguageModel({
-      model: togetherAISDKClient(selectedModel),
+      model: openRouterClient.languageModel(selectedModel),
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
 

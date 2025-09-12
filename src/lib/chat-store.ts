@@ -1,7 +1,7 @@
 "use server";
 import { Message as AIMsg, generateText } from "ai";
 import { generateId } from "ai";
-import { redis, togetherAISDKClient } from "./clients"; // Import your redis client
+import { redis, openRouterClient } from "./clients"; // Import your redis client
 import { generateTitlePrompt } from "./prompts";
 const CHAT_KEY_PREFIX = "chat:";
 
@@ -36,13 +36,13 @@ export async function createChat({
   const id = generateId();
 
   // use userQuestion to generate a title for the chat
-  if (!process.env.TOGETHER_API_KEY) {
+  if (!process.env.OPENROUTER_API_KEY) {
     throw new Error(
-      "TOGETHER_API_KEY is not set. Please configure it in your environment to create chats."
+      "OPENROUTER_API_KEY is not set. Please configure it in your environment to create chats."
     );
   }
   const { text: title } = await generateText({
-    model: togetherAISDKClient("meta-llama/Llama-3.3-70B-Instruct-Turbo"),
+    model: openRouterClient.languageModel("meta-llama/Llama-3.3-70B-Instruct-Turbo"),
     prompt: generateTitlePrompt({ csvHeaders, userQuestion }),
     maxTokens: 100,
   });
