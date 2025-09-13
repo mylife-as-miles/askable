@@ -1,12 +1,11 @@
 import mysql from 'mysql2/promise';
 import { createOpenAI } from "@ai-sdk/openai";
-import { APP_NAME } from "@/lib/utils";
 
 export const openRouterClient = createOpenAI({
   apiKey: process.env.OPENROUTER_API_KEY || "",
   headers: {
     "HTTP-Referer": process.env.OPENROUTER_REFERER || "",
-    "X-Title": process.env.OPENROUTER_TITLE || APP_NAME,
+    "X-Title": process.env.OPENROUTER_TITLE || "Askable",
   },
   baseURL: "https://openrouter.ai/api/v1",
 });

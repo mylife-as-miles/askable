@@ -1,9 +1,9 @@
 import { streamText, generateText } from 'ai';
 import { NextResponse } from 'next/server';
-import { getOpenRouterModel } from '@/lib/ai/openrouter';
-import { serializeAIError } from '@/lib/ai/error';
+import { getOpenRouterModel } from '../../../lib/ai/openrouter';
+import { serializeAIError } from '../../../lib/ai/error';
 
-export const runtime = process.env.CHAT_ROUTE_RUNTIME ?? 'nodejs'; // set to 'edge' later if desired
+export const runtime = 'nodejs'; // set to 'edge' later if desired
 
 type ChatMessage = { role: 'system' | 'user' | 'assistant' | 'tool'; content: string };
 
