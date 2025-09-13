@@ -1,11 +1,10 @@
 "use server";
 import { Message as AIMsg, generateText } from "ai";
 import { generateId } from "ai";
-import { redis, openRouterClient } from "./clients"; // Import your redis client
+import { openRouterClient, runQuery } from "./clients";
 import { generateTitlePrompt } from "./prompts";
-const CHAT_KEY_PREFIX = "chat:";
 
-// Extend the Message type to include duration for Redis persistence
+// Extend the Message type to include duration for database persistence
 export type DbMessage = AIMsg & {
   duration?: number;
   model?: string; // which model was used to generate this message
@@ -55,18 +54,18 @@ export async function createChat({
     title,
     createdAt: new Date(),
   };
-  await redis.set(`${CHAT_KEY_PREFIX}${id}`, JSON.stringify(initial));
+  await runQuery("INSERT INTO chats (id, data) VALUES (?, ?)", [
+    id,
+    JSON.stringify(initial),
+  ]);
   return id;
 }
 
 export async function loadChat(id: string): Promise<ChatData | null> {
-  const value = await redis.get(`${CHAT_KEY_PREFIX}${id}`);
-  if (!value) return null;
-  try {
-    return typeof value === "string" ? JSON.parse(value) : (value as ChatData);
-  } catch {
-    return null;
-  }
+  const [rows] = await runQuery("SELECT data FROM chats WHERE id = ?", [id]);
+  if (rows.length === 0) return null;
+  const row = rows[0] as { data: string };
+  return JSON.parse(row.data) as ChatData;
 }
 
 export async function saveNewMessage({
@@ -79,13 +78,13 @@ export async function saveNewMessage({
   const chat = await loadChat(id);
   if (chat) {
     const updatedMessages = [...(chat.messages || []), message];
-    await redis.set(
-      `${CHAT_KEY_PREFIX}${id}`,
+    await runQuery("UPDATE chats SET data = ? WHERE id = ?", [
       JSON.stringify({
         ...chat,
         messages: updatedMessages,
-      })
-    );
+      }),
+      id,
+    ]);
   } else {
     // If chat does not exist, create a new one with this message
     const newChat: ChatData = {
@@ -95,6 +94,9 @@ export async function saveNewMessage({
       csvFileUrl: null,
       title: null,
     };
-    await redis.set(`${CHAT_KEY_PREFIX}${id}`, JSON.stringify(newChat));
+    await runQuery("INSERT INTO chats (id, data) VALUES (?, ?)", [
+      id,
+      JSON.stringify(newChat),
+    ]);
   }
 }

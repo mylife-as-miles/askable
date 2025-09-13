@@ -92,39 +92,6 @@ export async function POST(req: Request) {
       messages: coreMessagesForStream.filter(
         (msg) => msg.role !== "system"
       ) as CoreMessage[],
-      onError: (error) => {
-        console.error("Error:", error);
-      },
-      async onFinish({ response }) {
-        // End timing
-        const end = Date.now();
-        const duration = (end - start) / 1000;
-
-        if (response.messages.length > 1) {
-          console.log("response.messages", response.messages);
-          return;
-        }
-
-        const responseMessages = appendResponseMessages({
-          messages: messagesToSave,
-          responseMessages: response.messages,
-        });
-
-        const responseMessage = responseMessages.at(-1);
-
-        if (!responseMessage) {
-          return;
-        }
-
-        await saveNewMessage({
-          id,
-          message: {
-            ...responseMessage,
-            duration,
-            model: selectedModel,
-          },
-        });
-      },
     });
 
     return stream.toDataStreamResponse({
