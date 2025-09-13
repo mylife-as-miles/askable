@@ -1,108 +1,104 @@
-import { streamText, generateText } from 'ai';
-import { NextResponse } from 'next/server';
-import { getOpenRouterModel } from '../../../lib/ai/openrouter';
-import { serializeAIError } from '../../../lib/ai/error';
-
-export const runtime = 'nodejs'; // set to 'edge' later if desired
-
-type ChatMessage = { role: 'system' | 'user' | 'assistant' | 'tool'; content: string };
-
-function isMessageArray(x: any): x is ChatMessage[] {
-  return Array.isArray(x) && x.every(m => typeof m?.role === 'string' && typeof m?.content === 'string');
-}
+import { openRouterClient } from "@/lib/clients";
+import {
+  streamText,
+  generateId,
+  CoreMessage,
+  appendResponseMessages,
+  wrapLanguageModel,
+  extractReasoningMiddleware,
+} from "ai";
+import { DbMessage, loadChat, saveNewMessage } from "@/lib/chat-store";
+import { limitMessages } from "@/lib/limits";
+import { generateCodePrompt } from "@/lib/prompts";
+import { CHAT_MODELS } from "@/lib/models";
 
 export async function POST(req: Request) {
-  const debug = process.env.DEBUG_AI === 'true';
-  const started = Date.now();
+  const { id, message, model } = await req.json();
 
-  let body: any;
+  // get from headers X-Auto-Error-Resolved
+  const errorResolved = req.headers.get("X-Auto-Error-Resolved");
+
+  // Use IP address as a simple user fingerprint
+  const ip = req.headers.get("x-forwarded-for") || "unknown";
   try {
-    const text = await req.text();
-    body = text ? JSON.parse(text) : {};
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const {
-    // Either messages (chat) or prompt (text) are supported by AI SDK. Prefer messages for chat UIs.
-    messages,
-    prompt,
-    model: modelOverride, // optional override, e.g. "anthropic/claude-3.5-sonnet"
-    maxTokens,
-    temperature,
-    // Add any other options you pass through
-  } = body ?? {};
-
-  // Validate inputs early so we don't stream an error
-  if (!messages && !prompt) {
-    return NextResponse.json({ error: 'Provide messages[] or prompt' }, { status: 400 });
-  }
-  if (messages && !isMessageArray(messages)) {
-    return NextResponse.json({ error: 'messages must be an array of {role, content}' }, { status: 400 });
-  }
-
-  const model = getOpenRouterModel(modelOverride);
-
-  try {
-    if (debug || process.env.FORCE_NON_STREAM === 'true') {
-      // Non-streaming path gives clear error details
-      const result = await generateText({
-        model,
-        ...(messages ? { messages } : { prompt }),
-        ...(maxTokens ? { maxTokens } : {}),
-        ...(temperature !== undefined ? { temperature } : {}),
-      });
-
-      return NextResponse.json(
-        {
-          ok: true,
-          text: result.text,
-          finishReason: result.finishReason,
-          usage: result.usage,
-          latencyMs: Date.now() - started,
-          warnings: result.warnings,
-          provider: 'openrouter',
-          model: modelOverride ?? process.env.OPENROUTER_MODEL ?? 'anthropic/claude-3.5-sonnet',
-        },
-        { status: 200 },
-      );
+    if (!errorResolved) {
+      await limitMessages(ip);
     }
+  } catch (err) {
+    return new Response("Too many messages. Daily limit reached.", {
+      status: 429,
+    });
+  }
 
-    // Streaming path
-    const result = await streamText({
-      model,
-      ...(messages ? { messages } : { prompt }),
-      ...(maxTokens ? { maxTokens } : {}),
-      ...(temperature !== undefined ? { temperature } : {}),
-      // Useful callbacks for logging:
-      onStart: () => {
-        console.log(JSON.stringify({ level: 'info', msg: 'AI stream start', t: Date.now(), model: modelOverride ?? process.env.OPENROUTER_MODEL }));
-      },
-      onToken: (t) => {
-        // Light logging; don’t log every token in production
-        if (process.env.LOG_TOKENS === 'true') {
-          console.log(JSON.stringify({ level: 'debug', msg: 'AI token', t }));
-        }
-      },
-      onFinish: ({ finishReason, usage }) => {
-        console.log(JSON.stringify({ level: 'info', msg: 'AI stream finish', finishReason, usage, latencyMs: Date.now() - started }));
-      },
-      onError: (err) => {
-        console.error(JSON.stringify({ level: 'error', msg: 'AI stream error', error: serializeAIError(err) }));
-      },
+  const chat = await loadChat(id);
+
+  const newUserMessage: DbMessage = {
+    id: generateId(),
+    role: "user",
+    content: message,
+    createdAt: new Date(),
+    isAutoErrorResolution: errorResolved === "true",
+  };
+
+  // Save the new user message
+  await saveNewMessage({ id, message: newUserMessage });
+
+  const messagesToSave: DbMessage[] = [
+    ...(chat?.messages || []),
+    newUserMessage,
+  ];
+
+  const coreMessagesForStream = messagesToSave
+    .filter((msg) => msg.role === "user" || msg.role === "assistant")
+    .map((msg) => ({
+      role: msg.role,
+      content: msg.content,
+    }));
+
+  // Start timing
+  const start = Date.now();
+
+  // Determine which model to use
+
+  const defaultModel = CHAT_MODELS.find((m) => m.isDefault)?.model;
+
+  const selectedModelSlug = typeof model === "string" ? model : undefined;
+
+  const selectedModel =
+    (selectedModelSlug &&
+      CHAT_MODELS.find((m) => m.slug === selectedModelSlug)?.model) ||
+    defaultModel;
+
+  if (!selectedModel) {
+    throw new Error("Invalid model selected.");
+  }
+
+  try {
+    // Create a new model instance based on selectedModel
+    const modelInstance = wrapLanguageModel({
+      model: openRouterClient.languageModel(selectedModel),
+      middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
 
-    // This returns the DataStream response that your frontend expects.
-    return result.toDataStreamResponse();
-  } catch (err: any) {
-    // If the provider threw before stream start, surface details here.
-    const ser = serializeAIError(err);
-    console.error(JSON.stringify({ level: 'error', msg: 'AI route exception', error: ser }));
+    // TODO: handling context length here cause coreMessagesForStream could be too long for the currently selected model?
 
-    const isProd = process.env.NODE_ENV === 'production';
-    return NextResponse.json(
-      isProd ? { error: 'Internal Server Error' } : { error: 'AI provider error', details: ser },
-      { status: 500 },
-    );
+    const stream = streamText({
+      model: modelInstance,
+      system: generateCodePrompt({
+        csvFileUrl: chat?.csvFileUrl || "",
+        csvHeaders: chat?.csvHeaders || [],
+        csvRows: chat?.csvRows || [],
+      }),
+      messages: coreMessagesForStream.filter(
+        (msg) => msg.role !== "system"
+      ) as CoreMessage[],
+    });
+
+    return stream.toDataStreamResponse({
+      sendReasoning: true,
+    });
+  } catch (err) {
+    console.error(err);
+    return new Response("Error generating response", { status: 500 });
   }
 }
