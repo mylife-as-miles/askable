@@ -20,7 +20,7 @@ export function serializeAIError(err: any): any {
         statusText: resp.statusText,
         headers:
           typeof resp.headers?.forEach === 'function'
-            ? Object.fromEntries(Array.from(resp.headers.entries()))
+            ? Object.fromEntries(Array.from((resp.headers as Headers).entries()))
             : undefined,
       },
       cause: serializeAIError(err?.cause),
