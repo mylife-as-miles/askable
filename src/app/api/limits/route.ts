@@ -1,9 +1,7 @@
 import { getRemainingMessages } from "@/lib/limits";
+import { logger, serializeError } from "@/lib/logger";
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-
-  // Use IP address as a simple user fingerprint
   const ip = request.headers.get("x-forwarded-for") || "unknown";
 
   try {
@@ -13,7 +11,8 @@ export async function GET(request: Request) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
+    logger.error('GET /api/limits failed', { error: serializeError(error) });
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

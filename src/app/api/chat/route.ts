@@ -3,22 +3,18 @@ import {
   streamText,
   generateId,
   CoreMessage,
-  appendResponseMessages,
-  wrapLanguageModel,
-  extractReasoningMiddleware,
 } from "ai";
 import { DbMessage, loadChat, saveNewMessage } from "@/lib/chat-store";
 import { limitMessages } from "@/lib/limits";
 import { generateCodePrompt } from "@/lib/prompts";
 import { CHAT_MODELS } from "@/lib/models";
+import { AIStream, StreamingTextResponse } from "ai";
 
 export async function POST(req: Request) {
   const { id, message, model } = await req.json();
 
-  // get from headers X-Auto-Error-Resolved
   const errorResolved = req.headers.get("X-Auto-Error-Resolved");
 
-  // Use IP address as a simple user fingerprint
   const ip = req.headers.get("x-forwarded-for") || "unknown";
   try {
     if (!errorResolved) {
@@ -40,7 +36,6 @@ export async function POST(req: Request) {
     isAutoErrorResolution: errorResolved === "true",
   };
 
-  // Save the new user message
   await saveNewMessage({ id, message: newUserMessage });
 
   const messagesToSave: DbMessage[] = [
@@ -55,15 +50,10 @@ export async function POST(req: Request) {
       content: msg.content,
     }));
 
-  // Start timing
   const start = Date.now();
 
-  // Determine which model to use
-
   const defaultModel = CHAT_MODELS.find((m) => m.isDefault)?.model;
-
   const selectedModelSlug = typeof model === "string" ? model : undefined;
-
   const selectedModel =
     (selectedModelSlug &&
       CHAT_MODELS.find((m) => m.slug === selectedModelSlug)?.model) ||
@@ -74,29 +64,33 @@ export async function POST(req: Request) {
   }
 
   try {
-    // Create a new model instance based on selectedModel
-    const modelInstance = wrapLanguageModel({
+    const result = await streamText({
       model: openRouterClient.languageModel(selectedModel),
-      middleware: extractReasoningMiddleware({ tagName: "think" }),
-    });
-
-    // TODO: handling context length here cause coreMessagesForStream could be too long for the currently selected model?
-
-    const stream = streamText({
-      model: modelInstance,
       system: generateCodePrompt({
         csvFileUrl: chat?.csvFileUrl || "",
         csvHeaders: chat?.csvHeaders || [],
         csvRows: chat?.csvRows || [],
       }),
-      messages: coreMessagesForStream.filter(
-        (msg) => msg.role !== "system"
-      ) as CoreMessage[],
+      messages: coreMessagesForStream as CoreMessage[],
     });
 
-    return stream.toDataStreamResponse({
-      sendReasoning: true,
+    const stream = result.toAIStream({
+      async onFinal(completion) {
+        const end = Date.now();
+        const duration = (end - start) / 1000;
+        const assistantMessage: DbMessage = {
+          id: generateId(),
+          role: "assistant",
+          content: completion,
+          createdAt: new Date(),
+          duration,
+          model: selectedModel,
+        };
+        await saveNewMessage({ id, message: assistantMessage });
+      },
     });
+
+    return new StreamingTextResponse(stream);
   } catch (err) {
     console.error(err);
     return new Response("Error generating response", { status: 500 });

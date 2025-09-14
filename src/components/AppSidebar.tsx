@@ -9,6 +9,8 @@ import TooltipUsage from "@/components/TooltipUsage";
 import { SquareTerminal, Bot, BookOpen, Settings2, Plus, ChevronsUpDown, Sparkles, BadgeCheck, CreditCard, Bell, LogOut } from "lucide-react";
 
 export function AppSidebar({ chatId }: { chatId?: string }) {
+  const [avatarError, setAvatarError] = React.useState(false);
+
   return (
     <aside
       className={cn(
@@ -60,8 +62,11 @@ export function AppSidebar({ chatId }: { chatId?: string }) {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="mt-2 w-auto h-10 px-2 rounded-md gap-1">
               <div className="h-8 w-8 rounded-md overflow-hidden bg-slate-200 flex items-center justify-center text-slate-600 text-xs">
-                <img src="/avatar.png" alt="User" className="h-full w-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
-                <span className="absolute">U</span>
+                {!avatarError ? (
+                  <img src="/avatar.png" alt="User" className="h-full w-full object-cover" onError={() => setAvatarError(true)} />
+                ) : (
+                  <span className="absolute">U</span>
+                )}
               </div>
               <ChevronsUpDown className="size-3 text-slate-400" />
             </Button>

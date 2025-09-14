@@ -22,7 +22,8 @@ function getConfig() {
     TIDB_PASSWORD,
     TIDB_DATABASE,
     TIDB_ENABLE_SSL = 'true',
-    TIDB_TLS_REJECT_UNAUTHORIZED = 'false', // Leaving this as false due to SSL issues
+    TIDB_TLS_REJECT_UNAUTHORIZED = 'true',
+    TIDB_SSL_CA,
   } = process.env;
 
   let ssl: any = undefined;
@@ -30,6 +31,7 @@ function getConfig() {
     ssl = {
       minVersion: 'TLSv1.2',
       rejectUnauthorized: TIDB_TLS_REJECT_UNAUTHORIZED === 'true',
+      ca: TIDB_SSL_CA,
     };
   }
 
