@@ -1,5 +1,5 @@
-import { getRemainingMessages } from "@/lib/limits";
-import { logger, serializeError } from "@/lib/logger";
+import { getRemainingMessages } from "../../lib/limits";
+import { logger, serializeError } from "../../lib/logger";
 
 export async function GET(request: Request) {
   const ip = request.headers.get("x-forwarded-for") || "unknown";
