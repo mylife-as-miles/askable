@@ -3,6 +3,7 @@ import { Message as AIMsg, generateText } from "ai";
 import { generateId } from "ai";
 import { openRouterClient, runQuery } from "./clients";
 import { generateTitlePrompt } from "./prompts";
+import type { RowDataPacket } from 'mysql2';
 
 // Extend the Message type to include duration for database persistence
 export type DbMessage = AIMsg & {
@@ -62,7 +63,7 @@ export async function createChat({
 }
 
 export async function loadChat(id: string): Promise<ChatData | null> {
-  const [rows] = await runQuery("SELECT data FROM chats WHERE id = ?", [id]);
+  const [rows] = await runQuery<RowDataPacket[]>("SELECT data FROM chats WHERE id = ?", [id]);
   if (rows.length === 0) return null;
   const row = rows[0] as { data: string };
   return JSON.parse(row.data) as ChatData;

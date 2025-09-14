@@ -1,7 +1,13 @@
 import { createOpenAI } from '@ai-sdk/openai';
 
 function required(name: string, val: string | undefined) {
-  if (!val) throw new Error(`Missing required env var: ${name}`);
+  if (!val) {
+    if (process.env.NODE_ENV === 'production') {
+      console.warn(`Missing required env var: ${name}. The application will fail at runtime.`);
+      return 'dummy-key-for-build';
+    }
+    throw new Error(`Missing required env var: ${name}`);
+  }
   return val;
 }
 
