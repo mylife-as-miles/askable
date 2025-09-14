@@ -1,13 +1,13 @@
-import { openRouterClient } from "../../../lib/clients";
+import { openRouterClient } from "@/lib/clients";
 import {
   streamText,
   generateId,
   CoreMessage,
 } from "ai";
-import { DbMessage, loadChat, saveNewMessage } from "../../../lib/chat-store";
-import { limitMessages } from "../../../lib/limits";
-import { generateCodePrompt } from "../../../lib/prompts";
-import { CHAT_MODELS } from "../../../lib/models";
+import { DbMessage, loadChat, saveNewMessage } from "@/lib/chat-store";
+import { limitMessages } from "@/lib/limits";
+import { generateCodePrompt } from "@/lib/prompts";
+import { CHAT_MODELS } from "@/lib/models";
 import { AIStream, StreamingTextResponse } from "ai";
 
 export async function POST(req: Request) {
