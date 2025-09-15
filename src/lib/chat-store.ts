@@ -38,17 +38,21 @@ export async function createChat({
 }): Promise<string> {
   const id = generateId();
 
-  // use userQuestion to generate a title for the chat
-  if (!process.env.OPENROUTER_API_KEY) {
-    throw new Error(
-      "OPENROUTER_API_KEY is not set. Please configure it in your environment to create chats."
-    );
+  // Use userQuestion to generate a title for the chat, with a fallback.
+  let title = userQuestion.slice(0, 50); // Default title
+  try {
+    if (process.env.OPENROUTER_API_KEY) {
+      const { text: generatedTitle } = await generateText({
+        model: openRouterClient.languageModel("meta-llama/Llama-3.3-70B-Instruct-Turbo"),
+        prompt: generateTitlePrompt({ csvHeaders, userQuestion }),
+        maxTokens: 100,
+      });
+      title = generatedTitle;
+    }
+  } catch (error) {
+    console.error("Error generating chat title:", error);
+    // Fallback to the default title if generation fails
   }
-  const { text: title } = await generateText({
-    model: openRouterClient.languageModel("meta-llama/Llama-3.3-70B-Instruct-Turbo"),
-    prompt: generateTitlePrompt({ csvHeaders, userQuestion }),
-    maxTokens: 100,
-  });
 
   const initial: ChatData = {
     messages: [],
