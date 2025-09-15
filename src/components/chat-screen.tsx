@@ -7,10 +7,10 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { ChatInput } from "@/components/ChatInput";
 import { MemoizedMarkdown } from "./MemoizedMarkdown";
 import { CodePane } from "./chatTools/CodePane";
-import { type TogetherCodeInterpreterResponseData } from "@/lib/coding";
+import { runPython, type RunPythonResult } from "@/lib/coding";
 import { type UIMessage } from "ai";
-import { ImageFigure } from "./chatTools/ImageFigure";
 import { TerminalOutput } from "./chatTools/TerminalOutput";
+import { getCsvFromDB } from "@/lib/indexedDb";
 import { ErrorOutput } from "./chatTools/ErrorOutput";
 import { useAutoScroll } from "../hooks/useAutoScroll";
 import { useDraftedInput } from "../hooks/useDraftedInput";
@@ -77,159 +77,96 @@ export function ChatScreen({
         },
       };
     },
-    // Fake tool call
     onFinish: async (message) => {
       const code = extractCodeFromText(message.content);
+      if (!code) return;
 
-      if (code) {
-        // Add a "tool-invocation" message with a "start" state
-        setMessages((prev) => {
-          return [
-            ...prev,
-            {
-              id: message.id + "_tool_call", // Unique ID for the tool call message
-              role: "assistant",
-              content: "",
-              isThinking: true,
+      // Add a "tool-invocation" message with a "start" state
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: message.id + "_tool_call",
+          role: "assistant",
+          content: "",
+          isThinking: true,
+          toolCall: {
+            toolInvocation: {
+              toolName: "runCode",
+              args: code,
+              state: "start",
+            },
+          },
+        },
+      ]);
+
+      setIsCodeRunning(true);
+      let result: RunPythonResult;
+      try {
+        // Reconstruct the file from IndexedDB
+        if (!uploadedFile.datasetId) {
+          throw new Error("No dataset ID found.");
+        }
+        const csvData = await getCsvFromDB(uploadedFile.datasetId);
+        if (!csvData) {
+          throw new Error("Could not find file data in local storage.");
+        }
+        const header = csvData.headers.join(",") + "\\n";
+        const body = csvData.rows
+          .map((row) => csvData.headers.map((h) => row[h] ?? "").join(","))
+          .join("\\n");
+        const csvString = header + body;
+        const file = new File([csvString], csvData.fileName || "data.csv", {
+          type: "text/csv",
+        });
+
+        // Run the code client-side
+        result = await runPython(code, [file]);
+      } catch (error: any) {
+        result = {
+          status: "error",
+          outputs: [],
+          error_message: error.message,
+        };
+      }
+
+      const errorOccurred = result.status === "error";
+      const errorMessage = result.error_message || "";
+
+      if (errorOccurred) {
+        // Send error back to AI for resolution
+        const errorResolutionPrompt = `The following error occurred when running the code you provided: ${errorMessage}. Please try to fix the code and try again.`;
+        setTimeout(() => {
+          append(
+            { role: "user", content: errorResolutionPrompt },
+            { headers: { "X-Auto-Error-Resolved": "true" } }
+          );
+        }, 1000);
+      }
+
+      // Update the tool call message with the "result" state
+      setMessages((prev) =>
+        prev.map((msg) => {
+          if (msg.id === message.id + "_tool_call") {
+            return {
+              ...msg,
+              isThinking: false,
+              content: errorOccurred
+                ? "Code execution failed."
+                : "Code execution complete.",
               toolCall: {
                 toolInvocation: {
                   toolName: "runCode",
                   args: code,
-                  state: "start",
+                  state: "result",
+                  result: result,
                 },
               },
-            },
-          ];
-        });
-
-        setIsCodeRunning(true);
-        codeAbortController.current = new AbortController();
-        let result;
-        try {
-          const response = await fetch("/api/coding", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ code, id }),
-            signal: codeAbortController.current.signal,
-          });
-
-          result = await response.json();
-        } catch (error: any) {
-          if (error.name === "AbortError") {
-            // Fetch was aborted, handle accordingly
-            setIsCodeRunning(false);
-            // Optionally update the tool call message to show cancellation
-            setMessages((prev) =>
-              prev.map((msg) => {
-                if (msg.id === message.id + "_tool_call") {
-                  return {
-                    ...msg,
-                    isThinking: false,
-                    content: "Code execution cancelled.",
-                    toolCall: {
-                      toolInvocation: {
-                        toolName: "runCode",
-                        args: code,
-                        state: "result",
-                        result: { outputs: [] },
-                      },
-                    },
-                  };
-                }
-                return msg;
-              })
-            );
-            return;
-          } else {
-            // Handle other errors
-            setIsCodeRunning(false);
-            setMessages((prev) =>
-              prev.map((msg) => {
-                if (msg.id === message.id + "_tool_call") {
-                  return {
-                    ...msg,
-                    isThinking: false,
-                    content: `Code execution failed: ${error.message}`,
-                    toolCall: {
-                      toolInvocation: {
-                        toolName: "runCode",
-                        args: code,
-                        state: "result",
-                        result: {
-                          outputs: [{ type: "error", data: error.message }],
-                        },
-                      },
-                    },
-                  };
-                }
-                return msg;
-              })
-            );
-            return;
+            };
           }
-        }
-
-        // Check for error in outputs
-        const errorOutput = Array.isArray(result.outputs)
-          ? result.outputs.find(
-              (output: any) =>
-                output.type === "error" || output.type === "stderr"
-            )
-          : undefined;
-        const errorOccurred = Boolean(errorOutput);
-        const errorMessage = errorOutput
-          ? errorOutput.data || "Unknown error"
-          : "";
-
-        if (errorOccurred) {
-          // Send error back to AI for resolution
-          const errorResolutionPrompt = `The following error occurred when running the code you provided: ${errorMessage}. Please try to fix the code and try again.`;
-
-          // Append the error resolution prompt as a user message
-          setTimeout(() => {
-            append(
-              {
-                role: "user",
-                content: errorResolutionPrompt,
-              },
-              {
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-Auto-Error-Resolved": "true",
-                },
-              }
-            );
-          }, 1000); // slight delay for UX
-        }
-
-        // Update the tool call message with the "result" state
-        setMessages((prev) => {
-          return prev.map((msg) => {
-            if (msg.id === message.id + "_tool_call") {
-              return {
-                ...msg,
-                isThinking: false,
-                content: errorOccurred
-                  ? "Code execution failed."
-                  : "Code execution complete.",
-                toolCall: {
-                  toolInvocation: {
-                    toolName: "runCode",
-                    args: code,
-                    state: "result",
-                    result: result,
-                  },
-                },
-              };
-            }
-            return msg;
-          });
-        });
-        setIsCodeRunning(false);
-        codeAbortController.current = null;
-      }
+          return msg;
+        })
+      );
+      setIsCodeRunning(false);
     },
   });
 
@@ -317,25 +254,21 @@ export function ChatScreen({
 
             const codeResults =
               currentMessage.toolCall?.toolInvocation.toolName === "runCode"
-                ? (currentMessage.toolCall?.toolInvocation
-                    .result as TogetherCodeInterpreterResponseData)
+                ? (currentMessage.toolCall?.toolInvocation.result as RunPythonResult)
                 : undefined;
 
-            const stdOut = codeResults?.outputs?.find(
-              (result: any) => result.type === "stdout"
-            );
+            const stdOut =
+              codeResults?.status === "success" && codeResults.outputs.length > 0
+                ? codeResults.outputs[0]
+                : undefined;
 
-            const errorCode = codeResults?.outputs?.find(
-              (result: any) =>
-                result.type === "error" || result.type === "stderr"
-            );
-
-            const imagePngBase64 = codeResults?.outputs?.find(
-              (result: any) =>
-                result.type === "display_data" &&
-                result.data &&
-                result.data["image/png"]
-            );
+            const errorCode =
+              codeResults?.status === "error"
+                ? {
+                    type: "error",
+                    data: codeResults.error_message || "Unknown error",
+                  }
+                : undefined;
 
             const isThisLastMessage = messages.length - 1 === messageIdx;
 
@@ -402,19 +335,8 @@ export function ChatScreen({
                     {currentMessage.toolCall?.toolInvocation.state ===
                       "result" && (
                       <div className="text-slate-800 text-sm leading-relaxed">
-                        {errorCode ? (
-                          <ErrorOutput data={errorCode.data} />
-                        ) : (
-                          <>
-                            {stdOut && <TerminalOutput data={stdOut.data} />}
-
-                            {imagePngBase64 && (
-                              <ImageFigure
-                                imageData={imagePngBase64.data as any}
-                              />
-                            )}
-                          </>
-                        )}
+                        {errorCode && <ErrorOutput data={errorCode.data} />}
+                        {stdOut && <TerminalOutput data={stdOut.data} />}
                       </div>
                     )}
                     {/* Timestamp for assistant messages */}

@@ -1,9 +1,11 @@
 import OpenAI from "openai";
-import fs from "fs";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true, // needed for browser use
+});
 
-interface RunPythonResult {
+export interface RunPythonResult {
   status: "success" | "error";
   outputs: { type: "text"; data: string }[];
   error_message?: string;
@@ -11,58 +13,49 @@ interface RunPythonResult {
 
 /**
  * Executes Python code with OpenAI's Responses API & Code Interpreter.
- * Supports file uploads.
+ * Supports uploading files from IndexedDB or <input type="file">.
  *
  * @param code - Python code to execute
- * @param files - Optional list of local file paths to upload
+ * @param files - Optional list of File/Blob objects
  */
 export async function runPython(
   code: string,
-  files?: string[]
+  files?: (File | Blob)[]
 ): Promise<RunPythonResult> {
   try {
     // Upload files if provided
-    let uploadedFiles: string[] = [];
+    let uploadedFiles: { file_id: string }[] = [];
     if (files && files.length > 0) {
-      for (const filePath of files) {
+      for (const file of files) {
         const upload = await client.files.create({
-          file: fs.createReadStream(filePath),
-          purpose: "assistants", // required purpose for Code Interpreter
+          file, // Directly pass the File/Blob object
+          purpose: "assistants", // Required purpose
         });
-        uploadedFiles.push(upload.id);
+        uploadedFiles.push({ file_id: upload.id });
       }
     }
 
-    // Create the response with Code Interpreter
+    // Build input for the API
+    const inputItems: any[] = [
+      {
+        role: "user",
+        content: [{ type: "input_text", text: `Run this Python code:\n\n${code}` }],
+      },
+      ...uploadedFiles.map((f) => ({
+        role: "user",
+        content: [{ type: "file_reference", file_id: f.file_id }],
+      })),
+    ];
+
+    // Execute Python code with Code Interpreter
     const response = await client.responses.create({
-      model: "o4-mini", // model with code_interpreter support
-      tools: [
-        {
-          type: "code_interpreter",
-          container: { type: "auto" },
-        },
-      ],
-      instructions:
-        "You are a Python executor. Run the provided code using uploaded files if needed and return the output only.",
-      input: `Run this Python code:\n\n${code}`,
-      reasoning: { summary: "auto" },
-      attachments:
-        uploadedFiles.length > 0
-          ? uploadedFiles.map((fileId) => ({ file_id: fileId }))
-          : undefined,
+      model: "o4-mini",
+      tools: [{ type: "code_interpreter", container: { type: "auto" } }],
+      input: inputItems,
     });
 
-    // Extract output
-    let outputText = "";
-    if (response.output?.[0]?.content) {
-      const contentPiece = response.output[0].content.find(
-        (c) => c.type === "output_text" || c.type === "text"
-      );
-      outputText =
-        contentPiece && "text" in contentPiece
-          ? contentPiece.text
-          : JSON.stringify(response.output[0].content);
-    }
+    // Extract output text
+    const outputText = response.output_text || JSON.stringify(response.output);
 
     return {
       status: "success",
