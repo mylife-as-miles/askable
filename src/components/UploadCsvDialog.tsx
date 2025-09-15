@@ -32,16 +32,23 @@ export function UploadCsvDialog({ open, onOpenChange, onFileSelected, loading = 
       toast.warning("Please select a CSV file");
       return;
     }
-    if (file.type !== "text/csv") {
+
+    // Accept common CSV MIME types and also fall back to .csv extension check
+    const allowedMimeTypes = ["text/csv", "application/vnd.ms-excel", "text/plain", ""];
+    const isCsv = allowedMimeTypes.includes(file.type) || file.name.toLowerCase().endsWith(".csv");
+
+    if (!isCsv) {
       toast.warning("Only .csv files are supported");
       return;
     }
+
     if (file.size > 30 * 1024 * 1024) {
       toast.warning("File size must be less than 30MB");
       return;
     }
-  onFileSelected(file);
-  }, [onFileSelected, onOpenChange]);
+
+    onFileSelected(file);
+  }, [onFileSelected]);
 
   const onUseExample = useCallback(async () => {
     try {

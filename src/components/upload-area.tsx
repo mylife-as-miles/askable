@@ -31,13 +31,24 @@ export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
         <Dropzone
           multiple={false}
           accept={{
-            // accept csv
             "text/csv": [".csv"],
+            "application/vnd.ms-excel": [".csv"],
+            "text/plain": [".csv"],
           }}
           onDrop={(acceptedFiles) => {
             const file = acceptedFiles[0];
-
             if (!file) {
+              toast.warning("Please upload a CSV file");
+              return;
+            }
+            // fallback: check extension too
+            if (
+              !(
+                file.type === "text/csv" ||
+                file.type === "application/vnd.ms-excel" ||
+                file.name.toLowerCase().endsWith(".csv")
+              )
+            ) {
               toast.warning("Please upload a CSV file");
               return;
             }
