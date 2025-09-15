@@ -34,7 +34,7 @@ export async function generateMetadata({
 export default async function Page({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id:string }>;
 }) {
   const { id } = await params;
 
@@ -45,7 +45,8 @@ export default async function Page({
       id={id}
       initialMessages={chat?.messages}
       uploadedFile={{
-        url: chat?.csvFileUrl || "",
+        datasetId: chat?.datasetId || "",
+        name: chat?.fileName || "",
         csvHeaders: chat?.csvHeaders || [],
         csvRows: chat?.csvRows || [],
       }}

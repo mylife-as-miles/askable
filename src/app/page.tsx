@@ -8,13 +8,13 @@ import { HeroSection } from "@/components/hero-section";
 import { QuestionSuggestionCard } from "@/components/question-suggestion-card";
 import { extractCsvData } from "@/lib/csvUtils";
 import { createChat } from "@/lib/chat-store";
-import { useS3Upload } from "next-s3-upload";
 import { PromptInput } from "@/components/PromptInput";
 import { toast } from "sonner";
 import { useLLMModel } from "@/hooks/useLLMModel";
 import { redirect } from "next/navigation";
 import { UploadCsvDialog } from "@/components/UploadCsvDialog";
 import Loading from "./chat/[id]/loading";
+import { saveCsvToDB } from "@/lib/indexedDb";
 
 export interface SuggestedQuestion {
   id: string;
@@ -26,12 +26,11 @@ function AskableClient({
 }: {
   setIsLoading: (load: boolean) => void;
 }) {
-  const { uploadToS3 } = useS3Upload();
   const { selectedModelSlug } = useLLMModel();
   const [localFile, setLocalFile] = useState<File | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadStep, setUploadStep] = useState<
-    "idle" | "reading" | "uploading" | "generating" | "done"
+    "idle" | "reading" | "saving" | "generating" | "done"
   >("idle");
   const [suggestedQuestions, setSuggestedQuestions] = useState<
     SuggestedQuestion[]
@@ -40,71 +39,65 @@ function AskableClient({
   const [isProcessing, setIsProcessing] = useState(false);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [csvRows, setCsvRows] = useState<{ [key: string]: string }[]>([]);
-  const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
+  const [datasetId, setDatasetId] = useState<string | null>(null);
 
   const handleFileUpload = useCallback(async (file: File | null) => {
-    if (file && (file.type === "text/csv" || file.name.toLowerCase().endsWith(".csv") || file.type === "application/vnd.ms-excel")) {
-      setLocalFile(file);
-      setIsProcessing(true);
-      setUploadStep("reading");
+    if (!file) return;
 
-      try {
-        const { headers, sampleRows } = await extractCsvData(file);
+    setLocalFile(file);
+    setIsProcessing(true);
+    setUploadStep("reading");
 
-        if (headers.length === 0 || sampleRows.length === 0) {
-          alert("Please upload a CSV with headers.");
-          setLocalFile(null);
-          setIsProcessing(false);
-          setUploadStep("idle");
-          return;
-        }
+    try {
+      const { headers, sampleRows } = await extractCsvData(file);
 
-        setCsvRows(sampleRows);
-        setCsvHeaders(headers);
-        setUploadStep("uploading");
-
-        // start upload
-        const uploadPromise = uploadToS3(file);
-
-        const response = await fetch("/api/generate-questions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ columns: headers }),
-        });
-
-        setUploadStep("generating");
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const uploadedFile = await uploadPromise;
-
-        // Ensure uploadedFile and uploadedFile.url exist
-        if (!uploadedFile || !uploadedFile.url) {
-          throw new Error("Upload did not return a valid url.");
-        }
-
-        setUploadedFileUrl(uploadedFile.url);
-        console.log("CSV uploaded, url:", uploadedFile.url);
-        toast.success("CSV uploaded and ready. Ask a question →");
-
-        const data = await response.json();
-        setSuggestedQuestions(data.questions);
-
-        setUploadStep("done");
-        setUploadOpen(false);
-      } catch (error: any) {
-        console.error("Failed to process CSV file:", error);
-        toast.error("Failed to upload/process CSV: " + (error?.message ?? "unknown error"));
-        setUploadStep("idle");
-      } finally {
+      if (headers.length === 0 || sampleRows.length === 0) {
+        alert("Please upload a CSV with headers.");
+        setLocalFile(null);
         setIsProcessing(false);
+        setUploadStep("idle");
+        return;
       }
-    } else {
-      toast.warning("Only .csv files are supported");
+
+      setCsvRows(sampleRows);
+      setCsvHeaders(headers);
+      setUploadStep("saving");
+
+      const newId = `csv-${Date.now()}`;
+      await saveCsvToDB({
+        id: newId,
+        headers,
+        rows: sampleRows, // Note: only storing sample rows for now as per original logic
+        fileName: file.name,
+      });
+
+      setDatasetId(newId);
+      toast.success("CSV saved locally. Ask a question →");
+      setUploadOpen(false);
+
+      setUploadStep("generating");
+      const response = await fetch("/api/generate-questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ columns: headers }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setSuggestedQuestions(data.questions);
+
+      setUploadStep("done");
+    } catch (error: any) {
+      console.error("Failed to process CSV file:", error);
+      toast.error("Failed to save/process CSV: " + (error?.message ?? "unknown error"));
+      setUploadStep("idle");
+    } finally {
+      setIsProcessing(false);
     }
   }, []);
 
@@ -131,7 +124,7 @@ function AskableClient({
     const text = messageText || inputValue.trim();
     if (!text) return;
 
-    if (!uploadedFileUrl) {
+    if (!datasetId) {
       toast.warning("Please upload a CSV file first.");
       return;
     }
@@ -150,11 +143,17 @@ function AskableClient({
 
     setIsLoading(true);
 
+    if (!localFile) {
+      toast.warning("Cannot find file details.");
+      return;
+    }
+
     const id = await createChat({
       userQuestion: text, // it's not stored in db here just used for chat title!
       csvHeaders: csvHeaders,
-      csvFileUrl: uploadedFileUrl,
+      datasetId: datasetId,
       csvRows: csvRows,
+      fileName: localFile.name,
     });
     redirect(`/chat/${id}?model=${selectedModelSlug}`);
   };
@@ -168,9 +167,9 @@ function AskableClient({
         loading={isProcessing}
         fileName={localFile?.name ?? null}
         fileSize={localFile?.size ?? null}
-  step={uploadStep}
-  headers={csvHeaders}
-  sampleRows={csvRows}
+        step={uploadStep}
+        headers={csvHeaders}
+        sampleRows={csvRows}
       />
       {/* Large Input Area */}
   {localFile && (

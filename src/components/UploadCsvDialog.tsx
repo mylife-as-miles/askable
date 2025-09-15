@@ -20,7 +20,7 @@ interface UploadCsvDialogProps {
   loading?: boolean;
   fileName?: string | null;
   fileSize?: number | null;
-  step?: "idle" | "reading" | "uploading" | "generating" | "done";
+  step?: "idle" | "reading" | "saving" | "generating" | "done";
   headers?: string[];
   sampleRows?: { [key: string]: string }[];
 }
@@ -87,17 +87,17 @@ export function UploadCsvDialog({ open, onOpenChange, onFileSelected, loading = 
               {/* Stepper */}
               <div className="flex flex-wrap items-center gap-3 text-xs">
                 {(() => {
-                  type Step = "idle" | "reading" | "uploading" | "generating" | "done";
+                  type Step = "idle" | "reading" | "saving" | "generating" | "done";
                   const order: Record<Step, number> = {
                     idle: 0,
                     reading: 1,
-                    uploading: 2,
+                    saving: 2,
                     generating: 3,
                     done: 4,
                   };
                   const STEPS: { key: Exclude<Step, "idle" | "done">; label: string }[] = [
                     { key: "reading", label: "Reading headers" },
-                    { key: "uploading", label: "Uploading" },
+                    { key: "saving", label: "Saving locally" },
                     { key: "generating", label: "Generating questions" },
                   ];
                   return STEPS.map(({ key, label }) => {

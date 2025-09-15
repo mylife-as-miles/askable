@@ -80,13 +80,9 @@ export function PromptInput({
                 <div className="flex flex-col justify-start items-start  relative gap-1">
                   <p
                     className="w-[64px] md:w-[100px] text-xs font-medium text-left text-[#1d293d] truncate"
-                    title={
-                      uploadedFile.name ||
-                      uploadedFile?.url?.split("/").pop() ||
-                      ""
-                    }
+                    title={uploadedFile.name || ""}
                   >
-                    {uploadedFile.name || uploadedFile?.url?.split("/").pop()}
+                    {uploadedFile.name}
                   </p>
                 </div>
               </div>
