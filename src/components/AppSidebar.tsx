@@ -4,10 +4,12 @@ import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/s
 import {
   Plus,
   Github,
+  History,
 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { ChatHistoryMenu } from "./ChatHistoryMenu";
 import { useRouter } from "next/navigation";
 
 const AppSidebarContent = ({ chatId }: { chatId?: string }) => {
@@ -37,7 +39,8 @@ const AppSidebarContent = ({ chatId }: { chatId?: string }) => {
           <button
             onClick={handleNewChat}
             className={cn(
-              "flex items-center justify-start gap-2 group/sidebar py-2 px-2 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-700"
+              "flex items-center justify-start gap-2 group/sidebar py-2",
+              "px-2" // Add padding to align with SidebarLink
             )}
           >
             <Plus className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
@@ -55,6 +58,19 @@ const AppSidebarContent = ({ chatId }: { chatId?: string }) => {
           {links.map((link, idx) => (
             <SidebarLink key={idx} link={link} />
           ))}
+          {/* Special handling for ChatHistoryMenu */}
+          <div className={cn("flex items-center justify-start gap-2 group/sidebar py-2")}>
+            <History className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0 ml-2" />
+            <motion.span
+              animate={{
+                display: animate ? (open ? "inline-block" : "none") : "inline-block",
+                opacity: animate ? (open ? 1 : 0) : 1,
+              }}
+              className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+            >
+              <ChatHistoryMenu chatId={chatId} />
+            </motion.span>
+          </div>
         </div>
       </div>
       <div>
