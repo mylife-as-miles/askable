@@ -70,6 +70,11 @@ export function ChatScreen({
         message: messages[messages.length - 1].content,
         id,
         model: selectedModelSlug,
+        chatData: {
+          csvFileUrl: uploadedFile?.url,
+          csvHeaders: uploadedFile?.csvHeaders,
+          csvRows: uploadedFile?.csvRows,
+        },
       };
     },
     // Fake tool call

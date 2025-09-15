@@ -9,7 +9,7 @@ import { limitMessages } from "@/lib/limits";
 import { generateCodePrompt } from "@/lib/prompts";
 import { CHAT_MODELS } from "@/lib/models";
 export async function POST(req: Request) {
-  const { id, message, model } = await req.json();
+  const { id, message, model, chatData } = await req.json();
 
   const errorResolved = req.headers.get("X-Auto-Error-Resolved");
 
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     isAutoErrorResolution: errorResolved === "true",
   };
 
-  await saveNewMessage({ id, message: newUserMessage });
+  await saveNewMessage({ id, message: newUserMessage, chatData });
 
   const messagesToSave: DbMessage[] = [
     ...(chat?.messages || []),
@@ -81,7 +81,7 @@ export async function POST(req: Request) {
           duration,
           model: selectedModel,
         };
-        await saveNewMessage({ id, message: assistantMessage });
+        await saveNewMessage({ id, message: assistantMessage, chatData });
       },
     });
 
