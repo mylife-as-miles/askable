@@ -43,7 +43,7 @@ function AskableClient({
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
 
   const handleFileUpload = useCallback(async (file: File | null) => {
-    if (file && file.type === "text/csv") {
+    if (file && (file.type === "text/csv" || file.name.toLowerCase().endsWith(".csv") || file.type === "application/vnd.ms-excel")) {
       setLocalFile(file);
       setIsProcessing(true);
       setUploadStep("reading");
@@ -62,6 +62,8 @@ function AskableClient({
         setCsvRows(sampleRows);
         setCsvHeaders(headers);
         setUploadStep("uploading");
+
+        // start upload
         const uploadPromise = uploadToS3(file);
 
         const response = await fetch("/api/generate-questions", {
@@ -80,20 +82,29 @@ function AskableClient({
 
         const uploadedFile = await uploadPromise;
 
+        // Ensure uploadedFile and uploadedFile.url exist
+        if (!uploadedFile || !uploadedFile.url) {
+          throw new Error("Upload did not return a valid url.");
+        }
+
         setUploadedFileUrl(uploadedFile.url);
+        console.log("CSV uploaded, url:", uploadedFile.url);
+        toast.success("CSV uploaded and ready. Ask a question →");
 
         const data = await response.json();
         setSuggestedQuestions(data.questions);
 
         setUploadStep("done");
-        toast.success("CSV ready. Ask a question →");
         setUploadOpen(false);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to process CSV file:", error);
+        toast.error("Failed to upload/process CSV: " + (error?.message ?? "unknown error"));
         setUploadStep("idle");
       } finally {
         setIsProcessing(false);
       }
+    } else {
+      toast.warning("Only .csv files are supported");
     }
   }, []);
 
