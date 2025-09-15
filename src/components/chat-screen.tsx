@@ -71,7 +71,7 @@ export function ChatScreen({
         id,
         model: selectedModelSlug,
         chatData: {
-          csvFileUrl: uploadedFile?.url,
+          datasetId: uploadedFile?.datasetId,
           csvHeaders: uploadedFile?.csvHeaders,
           csvRows: uploadedFile?.csvRows,
         },
@@ -470,13 +470,7 @@ export function ChatScreen({
               content: newMessage,
             });
           }}
-          uploadedFile={
-            uploadedFile && {
-              url: uploadedFile.url,
-              csvHeaders: uploadedFile.csvHeaders,
-              csvRows: uploadedFile.csvRows,
-            }
-          }
+          uploadedFile={uploadedFile}
           onStopLLM={() => {
             if (status === "submitted" || status === "streaming") {
               return stop();

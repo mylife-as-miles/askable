@@ -39,7 +39,7 @@ export function extractCodeFromText(text: string) {
 
 export type UploadedFile = {
   name?: string;
-  url?: string;
+  datasetId?: string;
   csvHeaders?: string[];
   csvRows?: { [key: string]: string }[];
 };

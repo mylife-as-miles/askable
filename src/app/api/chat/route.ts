@@ -65,7 +65,6 @@ export async function POST(req: Request) {
     const result = await streamText({
       model: openRouterClient.languageModel(selectedModel),
       system: generateCodePrompt({
-        csvFileUrl: chat?.csvFileUrl || "",
         csvHeaders: chat?.csvHeaders || [],
         csvRows: chat?.csvRows || [],
       }),

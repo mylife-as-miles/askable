@@ -14,7 +14,8 @@ export type DbMessage = AIMsg & {
 
 type ChatData = {
   messages: DbMessage[];
-  csvFileUrl: string | null;
+  datasetId: string | null;
+  fileName: string | null;
   csvHeaders: string[] | null;
   csvRows: { [key: string]: string }[] | null;
   title: string | null; // inferring the title of the chat based on csvHeaders and first user messages
@@ -26,12 +27,14 @@ export async function createChat({
   userQuestion,
   csvHeaders,
   csvRows,
-  csvFileUrl,
+  datasetId,
+  fileName,
 }: {
   userQuestion: string;
   csvHeaders: string[];
   csvRows: { [key: string]: string }[];
-  csvFileUrl: string;
+  datasetId: string;
+  fileName: string;
 }): Promise<string> {
   const id = generateId();
 
@@ -51,7 +54,8 @@ export async function createChat({
     messages: [],
     csvHeaders,
     csvRows,
-    csvFileUrl,
+    datasetId,
+    fileName,
     title,
     createdAt: new Date(),
   };
@@ -94,7 +98,8 @@ export async function saveNewMessage({
       messages: [message],
       csvHeaders: chatData?.csvHeaders || null,
       csvRows: chatData?.csvRows || null,
-      csvFileUrl: chatData?.csvFileUrl || null,
+      datasetId: chatData?.datasetId || null,
+      fileName: chatData?.fileName || null,
       title: null,
     };
     await runQuery("INSERT INTO chats (id, data) VALUES (?, ?)", [
