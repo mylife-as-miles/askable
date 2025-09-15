@@ -31,8 +31,10 @@ function getConfig() {
     ssl = {
       minVersion: 'TLSv1.2',
       rejectUnauthorized: TIDB_TLS_REJECT_UNAUTHORIZED === 'true',
-      ca: TIDB_SSL_CA,
     };
+    if (TIDB_SSL_CA) {
+      ssl.ca = TIDB_SSL_CA;
+    }
   }
 
   return {
