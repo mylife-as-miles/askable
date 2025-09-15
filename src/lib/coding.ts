@@ -48,7 +48,7 @@ export async function runPython(
     await client.beta.threads.messages.create(thread.id, {
       role: "user",
       content: code,
-      file_ids: file_ids,
+      attachments: file_ids.map(id => ({ file_id: id, tools: [{type: "code_interpreter"}] })),
     });
 
     // 5. Create a Run
