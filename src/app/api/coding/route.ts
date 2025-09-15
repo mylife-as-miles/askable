@@ -25,9 +25,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Reconstruct CSV and write to a temporary file
-    const header = chat.csvHeaders.join(",") + "\n";
+    const headers = chat.csvHeaders; // Assign to a new const to help TS with type narrowing
+    const header = headers.join(",") + "\n";
     const body = chat.csvRows
-      .map((row) => chat.csvHeaders.map((h) => row[h] ?? "").join(","))
+      .map((row) => headers.map((h) => row[h] ?? "").join(","))
       .join("\n");
     const csvString = header + body;
 
