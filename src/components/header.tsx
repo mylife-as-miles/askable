@@ -25,7 +25,7 @@ export function Header({ chatId }: HeaderProps) {
     <>
       <aside
         className={cn(
-          `md:flex-col md:w-[60px] md:left-0 md:top-0 items-center border-slate-100 z-20 bg-white
+          `md:flex-col md:w-[60px] md:left-0 md:top-0 items-center border-border z-20 bg-card text-foreground
           flex flex-row-reverse justify-between
           transition-transform duration-300 ease-in-out
           md:translate-y-0
@@ -36,14 +36,14 @@ export function Header({ chatId }: HeaderProps) {
           "md:h-[calc(100vh)]"
         )}
         style={{
-          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
         }}
       >
         {/* Icons (top on desktop, left on mobile) */}
         <div className="flex flex-row gap-2.5 text-slate-400 md:flex-col md:gap-4 md:w-full items-center">
           <Link
             href="/"
-            className="hidden items-center justify-center md:flex p-4 border-b border-[#F1F5F9]"
+            className="hidden items-center justify-center md:flex p-4 border-b border-border"
           >
             <img src="/logo.svg" className="min-w-[22px]" />
           </Link>
@@ -54,7 +54,7 @@ export function Header({ chatId }: HeaderProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="gap-1 px-0 cursor-pointer mx-auto bg-transparent border-transparent h-auto text-[#1d293d]"
+              className="gap-1 px-0 cursor-pointer mx-auto bg-transparent border-transparent h-auto"
             >
               <img src="/new.svg" className="size-8 min-w-[32px]" />
             </Button>

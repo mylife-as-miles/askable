@@ -43,7 +43,7 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-2 px-2">
-        <div className="h-8 w-full bg-neutral-200 dark:bg-neutral-700 rounded-lg animate-pulse" />
+  <div className="h-8 w-full bg-muted rounded-lg animate-pulse" />
         <div className="h-8 w-full bg-neutral-200 dark:bg-neutral-700 rounded-lg animate-pulse" />
         <div className="h-8 w-full bg-neutral-200 dark:bg-neutral-700 rounded-lg animate-pulse" />
       </div>
@@ -60,8 +60,8 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
             key={chat.id}
             href={href}
             className={cn(
-              "flex items-center justify-start gap-2 group/sidebar py-2 px-2 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-700",
-              isActive && "bg-neutral-200 dark:bg-neutral-700"
+              "flex items-center justify-start gap-2 group/sidebar py-2 px-2 rounded-lg hover:bg-sidebar-accent",
+              isActive && "bg-sidebar-accent"
             )}
           >
             <MessageSquare className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />

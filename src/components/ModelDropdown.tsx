@@ -24,7 +24,7 @@ export function ModelDropdown({
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger
         className={cn(
-          "flex flex-row justify-betweem items-center overflow-hidden gap-2.5 px-2 py-1.5 rounded-sm bg-white !border-[0.5px] !border-[#90a1b9] !h-[28px] min-w-[148px]",
+          "flex flex-row justify-betweem items-center overflow-hidden gap-2.5 px-2 py-1.5 rounded-sm bg-card border border-border !h-[28px] min-w-[148px]",
           "cursor-pointer"
         )}
         style={{ boxShadow: "0px 1px 7px -3px rgba(0,0,0,0.25)" }}
@@ -39,7 +39,7 @@ export function ModelDropdown({
               className="w-4 h-4 object-contain"
             />
           )}
-          <span className="text-sm text-left text-[#1d293d] truncate">
+          <span className="text-sm text-left text-foreground truncate">
             {selectedModel ? <>{selectedModel.title}</> : "Select model"}
           </span>
         </span>
@@ -55,7 +55,7 @@ export function ModelDropdown({
                 height={16}
                 className="w-4 h-4 object-contain"
               />
-              <span className="text-sm text-left text-[#1d293d] truncate">
+              <span className="text-sm text-left text-foreground truncate">
                 {m.title}
                 {m.hasReasoning && <span title="Has reasoning"> 🧠</span>}
               </span>

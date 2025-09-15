@@ -10,7 +10,7 @@ export function HeroSection() {
         <img src="/logo.svg" alt="Askable" className="size-10 mb-6" />
 
         {/* Badges */}
-        <div className="flex items-center divide-x divide-slate-200 mb-4 text-xs text-slate-600 rounded-full border bg-white/70 backdrop-blur overflow-hidden">
+  <div className="flex items-center divide-x divide-border mb-4 text-xs text-muted-foreground rounded-full border bg-card/70 backdrop-blur overflow-hidden">
           <div className="inline-flex items-center gap-1 px-2.5 py-1">
             <Sparkles className="size-3" />
             AI for data analysis
@@ -51,7 +51,7 @@ export function HeroSection() {
 
       {/* Code demo */}
       <div className="hidden md:block">
-        <div className="rounded-xl border shadow-sm bg-white p-2">
+  <div className="rounded-xl border shadow-sm bg-card p-2">
           <CodeDemo duration={8} delay={0.3} writing={true} cursor={true} />
         </div>
       </div>

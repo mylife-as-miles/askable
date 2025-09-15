@@ -63,7 +63,7 @@ export function UploadCsvDialog({ open, onOpenChange, onFileSelected, loading = 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-[920px] p-0 overflow-hidden border border-white/40 shadow-[0_10px_40px_rgba(2,6,23,0.2)] rounded-2xl bg-white/80 backdrop-blur-xl">
+  <DialogContent className="w-full max-w-[920px] p-0 overflow-hidden border border-border/40 shadow-[0_10px_40px_rgba(2,6,23,0.2)] rounded-2xl bg-popover/90 backdrop-blur-xl text-popover-foreground">
         {/* Header banner */}
         <div className="relative text-white p-6">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600" />
@@ -77,7 +77,7 @@ export function UploadCsvDialog({ open, onOpenChange, onFileSelected, loading = 
           </DialogHeader>
           {!!fileName && (
             <div className="mt-3 flex flex-col gap-3">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-sm">
+              <div className="inline-flex items-center gap-2 rounded-full bg-accent/40 px-3 py-1 text-sm text-accent-foreground">
                 <FileSpreadsheet className="size-4" />
                 <span className="truncate max-w-[220px]" title={fileName}>{fileName}</span>
                 {typeof fileSize === 'number' && (
@@ -159,7 +159,7 @@ export function UploadCsvDialog({ open, onOpenChange, onFileSelected, loading = 
                     <div
                       {...getRootProps()}
                       className={cn(
-                        "rounded-xl border-2 border-dashed p-6 md:p-8 bg-white/80 backdrop-blur-md transition shadow-lg cursor-pointer",
+                        "rounded-xl border-2 border-dashed p-6 md:p-8 bg-card/80 backdrop-blur-md transition shadow-lg cursor-pointer",
                         isDragActive ? "border-blue-600 bg-blue-50/80" : "border-slate-200"
                       )}
                       style={{ boxShadow: "0 12px 32px rgba(2,6,23,0.10)" }}
@@ -180,7 +180,7 @@ export function UploadCsvDialog({ open, onOpenChange, onFileSelected, loading = 
                   )}
                 </Dropzone>
               ) : (
-                <div className="rounded-xl border p-6 md:p-8 bg-white/70 backdrop-blur-md shadow-lg">
+                <div className="rounded-xl border p-6 md:p-8 bg-card/80 backdrop-blur-md shadow-lg">
                   <div className="flex items-center gap-3">
                     <div className="size-10 rounded-full border-2 border-blue-500/40 border-t-transparent animate-spin" />
                     <div>
@@ -203,7 +203,7 @@ export function UploadCsvDialog({ open, onOpenChange, onFileSelected, loading = 
 
               {/* Mini CSV preview table */}
               {headers.length > 0 && sampleRows.length > 0 && (
-                <div className="mt-4 rounded-lg border bg-white overflow-auto">
+                <div className="mt-4 rounded-lg border bg-card overflow-auto">
                   <table className="min-w-full text-xs">
                     <thead className="bg-slate-50">
                       <tr>

@@ -235,10 +235,10 @@ export default function Askable() {
   }
 
   return (
-    <div className="flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 w-full flex-1 h-screen overflow-hidden">
+    <div className="flex flex-col md:flex-row bg-background w-full flex-1 h-screen overflow-hidden">
       <AppSidebar />
       <div className="flex flex-1">
-        <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
+        <div className="p-2 md:p-10 rounded-tl-2xl border border-border bg-card flex flex-col gap-2 flex-1 w-full h-full">
           <div className="flex flex-col items-center md:items-start pt-16 md:pt-[132px] pb-8 mx-auto w-full">
             <HeroSection />
           </div>

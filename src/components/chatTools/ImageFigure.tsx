@@ -23,7 +23,7 @@ export const ImageFigure: React.FC<ImageFigureProps> = ({ imageData }) => {
   return (
     <>
       <div
-        className="mt-4 rounded-lg overflow-hidden border border-slate-700 bg-white p-4 flex justify-center items-center cursor-pointer hover:opacity-80 transition"
+  className="mt-4 rounded-lg overflow-hidden border border-border bg-card p-4 flex justify-center items-center cursor-pointer hover:opacity-80 transition"
         onClick={handleOpen}
       >
         <h3 className="sr-only">Image:</h3>

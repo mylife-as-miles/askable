@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 export default function Loading() {
   return (
-    <div className="min-h-screen bg-white flex flex-col w-full h-screen">
+  <div className="min-h-screen bg-card flex flex-col w-full h-screen">
       <Header />
       <div className="flex flex-col md:ml-[70px] flex-1">
         <div className="flex-1 overflow-y-auto p-4 gap-4 flex flex-col mx-auto max-w-[700px] w-full">

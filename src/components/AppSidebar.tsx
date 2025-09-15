@@ -21,7 +21,7 @@ const AppSidebarContent = ({ chatId }: { chatId?: string }) => {
       label: "GitHub",
       href: "https://github.com/mylife-as-miles/askable",
       icon: (
-        <Github className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <Github className="text-sidebar-foreground h-5 w-5 flex-shrink-0" />
       ),
     },
   ];
@@ -43,13 +43,13 @@ const AppSidebarContent = ({ chatId }: { chatId?: string }) => {
               "px-2" // Add padding to align with SidebarLink
             )}
           >
-            <Plus className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+            <Plus className="text-sidebar-foreground h-5 w-5 flex-shrink-0" />
             <motion.span
               animate={{
                 display: animate ? (open ? "inline-block" : "none") : "inline-block",
                 opacity: animate ? (open ? 1 : 0) : 1,
               }}
-              className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+              className="text-sidebar-foreground text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
             >
               New Chat
             </motion.span>
@@ -59,14 +59,14 @@ const AppSidebarContent = ({ chatId }: { chatId?: string }) => {
             <SidebarLink key={idx} link={link} />
           ))}
           {/* Special handling for ChatHistoryMenu */}
-          <div className={cn("flex items-center justify-start gap-2 group/sidebar py-2")}>
-            <History className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0 ml-2" />
+          <div className={cn("flex items-center justify-start gap-2 group/sidebar py-2")}> 
+            <History className="text-sidebar-foreground h-5 w-5 flex-shrink-0 ml-2" />
             <motion.span
               animate={{
                 display: animate ? (open ? "inline-block" : "none") : "inline-block",
                 opacity: animate ? (open ? 1 : 0) : 1,
               }}
-              className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+              className="text-sidebar-foreground text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
             >
               <ChatHistoryMenu chatId={chatId} />
             </motion.span>
@@ -95,13 +95,13 @@ export const Logo = () => {
   return (
     <Link
       href="/"
-      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
+      className="font-normal flex space-x-2 items-center text-sm text-foreground py-1 relative z-20"
     >
       <img src="/logo.svg" className="h-5 w-5 flex-shrink-0" />
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="font-medium text-black dark:text-white whitespace-pre"
+        className="font-medium text-foreground whitespace-pre"
       >
         Askable
       </motion.span>
@@ -113,7 +113,7 @@ export const LogoIcon = () => {
   return (
     <Link
       href="/"
-      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
+      className="font-normal flex space-x-2 items-center text-sm text-foreground py-1 relative z-20"
     >
       <img src="/logo.svg" className="h-5 w-5 flex-shrink-0" />
     </Link>
