@@ -35,7 +35,7 @@ export function ChatInput({
   return (
     <>
   <div className="h-[130px] w-full md:hidden" />
-  <div className="w-full md:max-w-2xl mx-auto fixed bottom-0 bg-card md:relative pb-4 [padding-bottom:calc(1rem+env(safe-area-inset-bottom))]">
+  <div className="w-full md:max-w-2xl mx-auto fixed inset-x-0 bottom-0 bg-card md:relative pb-4 [padding-bottom:calc(1rem+env(safe-area-inset-bottom))] px-3 sm:px-4 border-t border-border z-40 md:px-0 md:border-t-0 md:z-auto">
         <PromptInput
           isLLMAnswering={isLLMAnswering}
           value={value}
