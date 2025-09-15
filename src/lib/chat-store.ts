@@ -72,9 +72,11 @@ export async function loadChat(id: string): Promise<ChatData | null> {
 export async function saveNewMessage({
   id,
   message,
+  chatData,
 }: {
   id: string;
   message: DbMessage;
+  chatData?: Partial<ChatData>;
 }): Promise<void> {
   const chat = await loadChat(id);
   if (chat) {
@@ -90,9 +92,9 @@ export async function saveNewMessage({
     // If chat does not exist, create a new one with this message
     const newChat: ChatData = {
       messages: [message],
-      csvHeaders: null,
-      csvRows: null,
-      csvFileUrl: null,
+      csvHeaders: chatData?.csvHeaders || null,
+      csvRows: chatData?.csvRows || null,
+      csvFileUrl: chatData?.csvFileUrl || null,
       title: null,
     };
     await runQuery("INSERT INTO chats (id, data) VALUES (?, ?)", [
