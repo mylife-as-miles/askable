@@ -25,15 +25,15 @@ export function Header({ chatId }: HeaderProps) {
     <>
       <aside
         className={cn(
-          `md:flex-col md:w-[60px] md:left-0 md:top-0 items-center border-border z-20 bg-card text-foreground
-          flex flex-row-reverse justify-between
+          `md:flex-col md:w-[60px] md:left-0 md:top-0 items-center border-border z-30 bg-card/80 md:bg-card backdrop-blur supports-[backdrop-filter]:bg-card/60 text-foreground
+          flex flex-row-reverse justify-between sticky md:fixed
           transition-transform duration-300 ease-in-out
           md:translate-y-0
-          fixed top-0 left-0 right-0
+          top-0 left-0 right-0
           h-[60px]
           `,
 
-          "md:h-[calc(100vh)]"
+          "md:h-[calc(100vh)] border-b md:border-b-0 md:border-r"
         )}
         style={{
           boxShadow: "0 2px 8px rgba(0,0,0,0.08)",

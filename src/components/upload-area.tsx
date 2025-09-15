@@ -78,12 +78,12 @@ export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
                   backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='10' ry='10' stroke='%23CAD5E2' stroke-width='4' stroke-dasharray='6%2c 14' stroke-dashoffset='8' stroke-linecap='square'/%3e%3c/svg%3e")`,
                 }}
               >
-                <p className="text-base text-left text-[#90a1b9]">
+                <p className="text-base text-left text-muted-foreground">
                   Upload your CSV first, then ask a question
                 </p>
 
                 <div className="flex flex-col gap-1">
-                  <p className="text-xs text-[#90a1b9] text-center">
+                  <p className="text-xs text-muted-foreground text-center">
                     or drag and drop here
                   </p>
                   <div
@@ -99,7 +99,7 @@ export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
                           isDragAccept ? "scale-125" : ""
                         }`}
                       />
-                      <p className="flex-grow-0 flex-shrink-0 text-base font-medium text-left text-[#0f172b]">
+                      <p className="flex-grow-0 flex-shrink-0 text-base font-medium text-left text-foreground">
                         Upload CSV
                       </p>
                     </div>
@@ -112,7 +112,7 @@ export function UploadArea({ onFileChange, uploadedFile }: UploadAreaProps) {
       </div>
       <button
         className={cn(
-          "underline text-slate-500 underline-offset-2 mt-3 cursor-pointer"
+          "underline text-muted-foreground underline-offset-2 mt-3 cursor-pointer"
         )}
         onClick={onUseExample}
       >

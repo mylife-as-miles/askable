@@ -65,13 +65,13 @@ export function UploadCsvDialog({ open, onOpenChange, onFileSelected, loading = 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full max-w-[920px] max-h-[90svh] p-0 overflow-hidden md:overflow-visible border border-border/40 shadow-[0_10px_40px_rgba(2,6,23,0.2)] rounded-2xl bg-popover/90 backdrop-blur-xl text-popover-foreground">
         {/* Header banner */}
-        <div className="relative text-white p-6">
+  <div className="relative text-popover-foreground p-6">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600" />
           <div className="absolute inset-0 opacity-30" style={{ background: "radial-gradient(600px 200px at 10% 0%, rgba(255,255,255,0.4), transparent)" }} />
           <div className="relative">
           <DialogHeader>
             <DialogTitle className="text-xl md:text-2xl tracking-tight">Upload your CSV</DialogTitle>
-            <DialogDescription className="text-white/80">
+            <DialogDescription className="text-popover-foreground/80">
               Drag and drop a CSV up to 30MB. We’ll parse headers and sample rows to kickstart your analysis.
             </DialogDescription>
           </DialogHeader>
@@ -81,7 +81,7 @@ export function UploadCsvDialog({ open, onOpenChange, onFileSelected, loading = 
                 <FileSpreadsheet className="size-4" />
                 <span className="truncate max-w-[220px]" title={fileName}>{fileName}</span>
                 {typeof fileSize === 'number' && (
-                  <span className="text-white/80">· {(fileSize / (1024 * 1024)).toFixed(2)} MB</span>
+                  <span className="text-popover-foreground/80">· {(fileSize / (1024 * 1024)).toFixed(2)} MB</span>
                 )}
               </div>
               {/* Stepper */}
@@ -105,8 +105,8 @@ export function UploadCsvDialog({ open, onOpenChange, onFileSelected, loading = 
                     const active = step === key;
                     return (
                       <div key={key} className="inline-flex items-center gap-1.5">
-                        <CheckCircle2 className={cn("size-4", done ? "text-emerald-400" : active ? "text-white" : "text-white/50")} />
-                        <span className={cn(done ? "text-white" : active ? "text-white" : "text-white/70")}>{label}</span>
+                        <CheckCircle2 className={cn("size-4", done ? "text-emerald-400" : active ? "text-popover-foreground" : "text-popover-foreground/50")} />
+                        <span className={cn(done ? "text-popover-foreground" : active ? "text-popover-foreground" : "text-popover-foreground/70")}>{label}</span>
                       </div>
                     );
                   });
@@ -125,22 +125,22 @@ export function UploadCsvDialog({ open, onOpenChange, onFileSelected, loading = 
               <div className="flex items-start gap-3">
                 <ShieldCheck className="size-5 text-green-600 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-slate-900">Private by default</p>
-                  <p className="text-xs text-slate-500">Your file is only used to answer your questions.</p>
+                  <p className="text-sm font-medium text-foreground">Private by default</p>
+                  <p className="text-xs text-muted-foreground">Your file is only used to answer your questions.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Gauge className="size-5 text-indigo-600 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-slate-900">Fast preview</p>
-                  <p className="text-xs text-slate-500">We analyze headers and a small sample, not the entire file.</p>
+                  <p className="text-sm font-medium text-foreground">Fast preview</p>
+                  <p className="text-xs text-muted-foreground">We analyze headers and a small sample, not the entire file.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <FileSpreadsheet className="size-5 text-blue-600 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-slate-900">CSV only</p>
-                  <p className="text-xs text-slate-500">Support for XLSX coming soon.</p>
+                  <p className="text-sm font-medium text-foreground">CSV only</p>
+                  <p className="text-xs text-muted-foreground">Support for XLSX coming soon.</p>
                 </div>
               </div>
 
@@ -169,12 +169,12 @@ export function UploadCsvDialog({ open, onOpenChange, onFileSelected, loading = 
                         <div className={cn("rounded-full size-12 flex items-center justify-center",
                           isDragActive ? "bg-blue-600/10" : "bg-slate-100")}
                         >
-                          <UploadCloud className={cn("size-6", isDragActive ? "text-blue-700" : "text-slate-500")} />
+                          <UploadCloud className={cn("size-6", isDragActive ? "text-blue-700" : "text-muted-foreground")} />
                         </div>
-                        <p className="text-sm md:text-base text-slate-900 font-medium">
+                        <p className="text-sm md:text-base text-foreground font-medium">
                           {isDragActive ? "Drop your CSV here" : "Drag & drop your CSV or click to browse"}
                         </p>
-                        <p className="text-xs text-slate-500">Max 30MB • .csv only</p>
+                        <p className="text-xs text-muted-foreground">Max 30MB • .csv only</p>
                       </div>
                     </div>
                   )}
@@ -184,8 +184,8 @@ export function UploadCsvDialog({ open, onOpenChange, onFileSelected, loading = 
                   <div className="flex items-center gap-3">
                     <div className="size-10 rounded-full border-2 border-blue-500/40 border-t-transparent animate-spin" />
                     <div>
-                      <p className="text-sm font-medium text-slate-900">Analyzing CSV…</p>
-                      <p className="text-xs text-slate-500">Reading headers, uploading and preparing suggestions.</p>
+                      <p className="text-sm font-medium text-foreground">Analyzing CSV…</p>
+                      <p className="text-xs text-muted-foreground">Reading headers, uploading and preparing suggestions.</p>
                     </div>
                   </div>
                   <div className="mt-4 h-2 w-full bg-slate-200 rounded-full overflow-hidden">

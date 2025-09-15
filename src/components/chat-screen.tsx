@@ -224,7 +224,7 @@ export function ChatScreen({
   <div className="flex flex-col md:flex-row bg-background w-full flex-1 min-h-[100svh] md:h-screen overflow-hidden">
       <AppSidebar chatId={id} />
       <div className="flex flex-1">
-  <div className="p-2 md:p-10 rounded-tl-2xl border border-border bg-card flex flex-col gap-2 flex-1 w-full h-full">
+        <div className="p-2 md:p-10 rounded-tl-2xl border border-border bg-card flex flex-col gap-2 flex-1 w-full h-full max-w-screen-2xl mx-auto">
           {/* Context usage bar */}
           <div className="w-full flex flex-col items-center py-2">
             <div className="w-full max-w-[700px] px-4">
