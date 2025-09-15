@@ -10,18 +10,18 @@ export function HeroSection() {
         <img src="/logo.svg" alt="Askable" className="size-10 mb-6" />
 
         {/* Badges */}
-        <div className="flex items-center gap-2 mb-4 text-xs text-slate-600">
-          <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 bg-white/70 backdrop-blur">
+        <div className="flex items-center divide-x divide-slate-200 mb-4 text-xs text-slate-600 rounded-full border bg-white/70 backdrop-blur overflow-hidden">
+          <div className="inline-flex items-center gap-1 px-2.5 py-1">
             <Sparkles className="size-3" />
             AI for data analysis
-          </span>
-          <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 bg-white/70 backdrop-blur">
+          </div>
+          <div className="inline-flex items-center gap-1 px-2.5 py-1">
             <ShieldCheck className="size-3" />
             Private by default
-          </span>
-          <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 bg-white/70 backdrop-blur">
+          </div>
+          <div className="inline-flex items-center gap-1 px-2.5 py-1">
             OpenRouter-powered
-          </span>
+          </div>
         </div>
 
         {/* Title */}
