@@ -7,9 +7,8 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { ChatInput } from "@/components/ChatInput";
 import { MemoizedMarkdown } from "./MemoizedMarkdown";
 import { CodePane } from "./chatTools/CodePane";
-import { type TogetherCodeInterpreterResponseData } from "@/lib/coding";
+import { type RunPythonResult } from "@/lib/coding";
 import { type UIMessage } from "ai";
-import { ImageFigure } from "./chatTools/ImageFigure";
 import { TerminalOutput } from "./chatTools/TerminalOutput";
 import { ErrorOutput } from "./chatTools/ErrorOutput";
 import { useAutoScroll } from "../hooks/useAutoScroll";
@@ -317,25 +316,21 @@ export function ChatScreen({
 
             const codeResults =
               currentMessage.toolCall?.toolInvocation.toolName === "runCode"
-                ? (currentMessage.toolCall?.toolInvocation
-                    .result as TogetherCodeInterpreterResponseData)
+                ? (currentMessage.toolCall?.toolInvocation.result as RunPythonResult)
                 : undefined;
 
-            const stdOut = codeResults?.outputs?.find(
-              (result: any) => result.type === "stdout"
-            );
+            const stdOut =
+              codeResults?.status === "success" && codeResults.outputs.length > 0
+                ? codeResults.outputs[0]
+                : undefined;
 
-            const errorCode = codeResults?.outputs?.find(
-              (result: any) =>
-                result.type === "error" || result.type === "stderr"
-            );
-
-            const imagePngBase64 = codeResults?.outputs?.find(
-              (result: any) =>
-                result.type === "display_data" &&
-                result.data &&
-                result.data["image/png"]
-            );
+            const errorCode =
+              codeResults?.status === "error"
+                ? {
+                    type: "error",
+                    data: codeResults.error_message || "Unknown error",
+                  }
+                : undefined;
 
             const isThisLastMessage = messages.length - 1 === messageIdx;
 
@@ -402,19 +397,8 @@ export function ChatScreen({
                     {currentMessage.toolCall?.toolInvocation.state ===
                       "result" && (
                       <div className="text-slate-800 text-sm leading-relaxed">
-                        {errorCode ? (
-                          <ErrorOutput data={errorCode.data} />
-                        ) : (
-                          <>
-                            {stdOut && <TerminalOutput data={stdOut.data} />}
-
-                            {imagePngBase64 && (
-                              <ImageFigure
-                                imageData={imagePngBase64.data as any}
-                              />
-                            )}
-                          </>
-                        )}
+                        {errorCode && <ErrorOutput data={errorCode.data} />}
+                        {stdOut && <TerminalOutput data={stdOut.data} />}
                       </div>
                     )}
                     {/* Timestamp for assistant messages */}

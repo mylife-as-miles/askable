@@ -3,7 +3,7 @@ import fs from "fs";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-interface RunPythonResult {
+export interface RunPythonResult {
   status: "success" | "error";
   outputs: { type: "text"; data: string }[];
   error_message?: string;
