@@ -228,16 +228,16 @@ export function ChatScreen({
           {/* Context usage bar */}
           <div className="w-full flex flex-col items-center py-2">
             <div className="w-full max-w-[700px] px-4">
-              <div className="flex justify-between text-xs text-slate-500 mb-1">
+              <div className="flex justify-between text-xs text-muted-foreground mb-1">
                 <span>Context used</span>
                 <span>
                   {tokenInfo.tokens} / {tokenInfo.max} tokens (
                   {tokenInfo.percent.toFixed(1)}%)
                 </span>
               </div>
-              <div className="w-full h-2 bg-slate-200 rounded">
+              <div className="w-full h-2 bg-muted rounded">
                 <div
-                  className="h-2 bg-blue-500 rounded"
+                  className="h-2 bg-foreground rounded"
                   style={{ width: `${tokenInfo.percent}%` }}
                 />
               </div>
@@ -294,12 +294,12 @@ export function ChatScreen({
                       <ErrorBanner isWaiting={isThisLastMessage} />
                     ) : (
                       <div
-                        className="flex justify-end items-center relative overflow-hidden gap-2.5 px-3 py-2 rounded bg-slate-200 border border-[#cad5e2] max-w-[240px] md:max-w-[50%]"
+                        className="flex justify-end items-center relative overflow-hidden gap-2.5 px-3 py-2 rounded bg-muted border border-border max-w-[240px] md:max-w-[50%]"
                         style={{
                           boxShadow: "0px 0px 7px -5px rgba(0,0,0,0.25)",
                         }}
                       >
-                        <p className="text-sm text-left text-[#0f172b]">
+                        <p className="text-sm text-left text-foreground">
                           {currentMessage.content}
                         </p>
                       </div>
@@ -326,7 +326,7 @@ export function ChatScreen({
                       ) : null;
                     })()}
 
-                    <div className="text-slate-800 text-sm prose mt-3">
+                    <div className="text-foreground text-sm prose mt-3">
                       <MemoizedMarkdown id={currentMessage.id} content={currentMessage.content} />
                     </div>
 
@@ -334,7 +334,7 @@ export function ChatScreen({
 
                     {currentMessage.toolCall?.toolInvocation.state ===
                       "result" && (
-                      <div className="text-slate-800 text-sm leading-relaxed">
+                      <div className="text-foreground text-sm leading-relaxed">
                         {errorCode && <ErrorOutput data={errorCode.data} />}
                         {stdOut && <TerminalOutput data={stdOut.data} />}
                       </div>
@@ -343,7 +343,7 @@ export function ChatScreen({
                     {currentMessage.role === "assistant" &&
                       currentMessage.createdAt && (
                         <div className="flex justify-start mt-3">
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-muted-foreground">
                             {typeof currentMessage.duration === "number" && (
                               <>
                                 <span className="mr-0.5">
