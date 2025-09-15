@@ -1,88 +1,101 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
+import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/sidebar";
+import {
+  Plus,
+  Github,
+  History,
+} from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { ChatHistoryMenu } from "@/components/ChatHistoryMenu";
-import TooltipUsage from "@/components/TooltipUsage";
-import { SquareTerminal, Bot, BookOpen, Settings2, Plus, ChevronsUpDown, Sparkles, BadgeCheck, CreditCard, Bell, LogOut } from "lucide-react";
+import { ChatHistoryMenu } from "./ChatHistoryMenu";
+
+const AppSidebarContent = ({ chatId }: { chatId?: string }) => {
+  const { open, animate } = useSidebar();
+
+  const links = [
+    {
+      label: "New Chat",
+      href: "/",
+      icon: (
+        <Plus className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "GitHub",
+      href: "https://github.com/askable/askable",
+      icon: (
+        <Github className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      ),
+    },
+  ];
+  return (
+    <>
+      <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+        {open ? <Logo /> : <LogoIcon />}
+        <div className="mt-8 flex flex-col gap-2">
+          {links.map((link, idx) => (
+            <SidebarLink key={idx} link={link} />
+          ))}
+          {/* Special handling for ChatHistoryMenu */}
+          <div className={cn("flex items-center justify-start gap-2 group/sidebar py-2")}>
+            <History className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0 ml-2" />
+            <motion.span
+              animate={{
+                display: animate ? (open ? "inline-block" : "none") : "inline-block",
+                opacity: animate ? (open ? 1 : 0) : 1,
+              }}
+              className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+            >
+              <ChatHistoryMenu chatId={chatId} />
+            </motion.span>
+          </div>
+        </div>
+      </div>
+      <div>
+        {/* The user menu from the old sidebar can be added here if needed */}
+      </div>
+    </>
+  );
+};
 
 export function AppSidebar({ chatId }: { chatId?: string }) {
-  const [avatarError, setAvatarError] = React.useState(false);
-
+  const [open, setOpen] = useState(false);
   return (
-    <aside
-      className={cn(
-        `md:flex-col md:w-[60px] md:left-0 md:top-0 items-center border-slate-100 z-20 bg-white
-        flex flex-row-reverse justify-between
-        transition-transform duration-300 ease-in-out
-        md:translate-y-0
-        fixed top-0 left-0 right-0
-        h-[60px]`,
-        "md:h-[calc(100vh)]"
-      )}
-      style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}
-    >
-      {/* Icon column */}
-      <div className="flex flex-row gap-2.5 text-slate-400 md:flex-col md:gap-4 md:w-full items-center">
-        {/* Logo (desktop only) */}
-        <Link href="/" className="hidden items-center justify-center md:flex p-4 border-b border-[#F1F5F9]">
-          <img src="/logo.svg" className="min-w-[22px]" />
-        </Link>
-
-        {/* History */}
-        <ChatHistoryMenu chatId={chatId} />
-
-        {/* New chat */}
-        <Link href="/">
-          <Button variant="ghost" size="sm" className="gap-1 px-0 cursor-pointer mx-auto bg-transparent border-transparent h-auto text-[#1d293d]">
-            <img src="/new.svg" className="size-8 min-w-[32px]" />
-          </Button>
-        </Link>
-
-        {/* Primary nav icons */}
-        <div className="flex flex-row md:flex-col items-center gap-2">
-          <Button variant="ghost" size="sm" className="px-0 h-auto"><SquareTerminal className="size-5" /></Button>
-          <Button variant="ghost" size="sm" className="px-0 h-auto"><Bot className="size-5" /></Button>
-          <Button variant="ghost" size="sm" className="px-0 h-auto"><BookOpen className="size-5" /></Button>
-          <Button variant="ghost" size="sm" className="px-0 h-auto"><Settings2 className="size-5" /></Button>
-        </div>
-
-        {/* Mobile tooltip usage */}
-        <div className="flex md:hidden">
-          <TooltipUsage />
-        </div>
-      </div>
-
-      {/* Bottom user / usage (desktop) */}
-      <div className="hidden md:flex flex-col items-center md:mt-auto md:mb-2 md:w-full">
-        <TooltipUsage />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="mt-2 w-auto h-10 px-2 rounded-md gap-1">
-              <div className="h-8 w-8 rounded-md overflow-hidden bg-slate-200 flex items-center justify-center text-slate-600 text-xs">
-                {!avatarError ? (
-                  <img src="/avatar.png" alt="User" className="h-full w-full object-cover" onError={() => setAvatarError(true)} />
-                ) : (
-                  <span className="absolute">U</span>
-                )}
-              </div>
-              <ChevronsUpDown className="size-3 text-slate-400" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent side="right" align="start" className="min-w-48">
-            <DropdownMenuLabel className="text-xs text-muted-foreground">Account</DropdownMenuLabel>
-            <DropdownMenuItem><Sparkles className="size-4" /> Upgrade to Pro</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem><BadgeCheck className="size-4" /> Profile</DropdownMenuItem>
-            <DropdownMenuItem><CreditCard className="size-4" /> Billing</DropdownMenuItem>
-            <DropdownMenuItem><Bell className="size-4" /> Notifications</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem><LogOut className="size-4" /> Log out</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </aside>
+    <Sidebar open={open} setOpen={setOpen}>
+      <SidebarBody className="justify-between gap-10">
+        <AppSidebarContent chatId={chatId} />
+      </SidebarBody>
+    </Sidebar>
   );
 }
+
+export const Logo = () => {
+  return (
+    <Link
+      href="/"
+      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
+    >
+      <img src="/logo.svg" className="h-5 w-5 flex-shrink-0" />
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="font-medium text-black dark:text-white whitespace-pre"
+      >
+        Askable
+      </motion.span>
+    </Link>
+  );
+};
+
+export const LogoIcon = () => {
+  return (
+    <Link
+      href="/"
+      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
+    >
+      <img src="/logo.svg" className="h-5 w-5 flex-shrink-0" />
+    </Link>
+  );
+};

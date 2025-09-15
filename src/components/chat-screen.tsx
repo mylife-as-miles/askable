@@ -284,34 +284,34 @@ export function ChatScreen({
   }, [messages, modelContextLength]);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col w-full h-screen">
-  <AppSidebar chatId={id} />
-
-      {/* Context usage bar */}
-      <div className="w-full flex flex-col items-center py-2">
-        <div className="w-full max-w-[700px] px-4 md:ml-[70px]">
-          <div className="flex justify-between text-xs text-slate-500 mb-1">
-            <span>Context used</span>
-            <span>
-              {tokenInfo.tokens} / {tokenInfo.max} tokens (
-              {tokenInfo.percent.toFixed(1)}%)
-            </span>
+    <div className="flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 w-full flex-1 h-screen overflow-hidden">
+      <AppSidebar chatId={id} />
+      <div className="flex flex-1">
+        <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
+          {/* Context usage bar */}
+          <div className="w-full flex flex-col items-center py-2">
+            <div className="w-full max-w-[700px] px-4">
+              <div className="flex justify-between text-xs text-slate-500 mb-1">
+                <span>Context used</span>
+                <span>
+                  {tokenInfo.tokens} / {tokenInfo.max} tokens (
+                  {tokenInfo.percent.toFixed(1)}%)
+                </span>
+              </div>
+              <div className="w-full h-2 bg-slate-200 rounded">
+                <div
+                  className="h-2 bg-blue-500 rounded"
+                  style={{ width: `${tokenInfo.percent}%` }}
+                />
+              </div>
+            </div>
           </div>
-          <div className="w-full h-2 bg-slate-200 rounded">
-            <div
-              className="h-2 bg-blue-500 rounded"
-              style={{ width: `${tokenInfo.percent}%` }}
-            />
-          </div>
-        </div>
-      </div>
 
-  <div className="flex flex-col md:ml-[70px] flex-1">
-        {/* Messages */}
-        <div
-          className="flex-1 overflow-y-auto p-4 gap-4 flex flex-col mx-auto max-w-[700px] w-full"
-          ref={messagesContainerRef}
-        >
+          {/* Messages */}
+          <div
+            className="flex-1 overflow-y-auto p-4 gap-4 flex flex-col mx-auto max-w-[700px] w-full"
+            ref={messagesContainerRef}
+          >
           {messages.map((message, messageIdx) => {
             const currentMessage = message as Message; // Cast to our custom Message interface
 
@@ -491,6 +491,7 @@ export function ChatScreen({
             status === "submitted" || status === "streaming" || isCodeRunning
           }
         />
+        </div>
       </div>
     </div>
   );
