@@ -25,7 +25,7 @@ export function HeroSection() {
         </div>
 
         {/* Title */}
-        <h1 className="text-[28px] md:text-[40px] font-semibold text-slate-900 text-center md:text-left leading-tight tracking-tight">
+        <h1 className="text-[28px] md:text-[40px] font-semibold text-foreground text-center md:text-left leading-tight tracking-tight">
           Ask questions of your CSVs. Get charts, code, and insight.
         </h1>
 

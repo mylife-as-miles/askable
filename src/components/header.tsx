@@ -40,7 +40,7 @@ export function Header({ chatId }: HeaderProps) {
         }}
       >
         {/* Icons (top on desktop, left on mobile) */}
-        <div className="flex flex-row gap-2.5 text-slate-400 md:flex-col md:gap-4 md:w-full items-center">
+  <div className="flex flex-row gap-2.5 text-muted-foreground md:flex-col md:gap-4 md:w-full items-center">
           <Link
             href="/"
             className="hidden items-center justify-center md:flex p-4 border-b border-border"

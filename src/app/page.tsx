@@ -194,9 +194,9 @@ function AskableClient({
       {/* Processing State */}
       {isProcessing && (
         <div className="w-full max-w-sm my-8 md:max-w-2xl">
-          <p className="text-slate-500 text-sm mb-4 animate-pulse">
+          <p className="text-muted-foreground text-sm mb-4 animate-pulse">
             <span className="font-medium">Generating suggestions</span>{" "}
-            <span className="text-slate-400">...</span>
+            <span className="text-muted-foreground">...</span>
           </p>
           <div className="flex flex-col gap-3">
             {Array.from({ length: 3 }).map((_, idx: number) => (
@@ -208,9 +208,9 @@ function AskableClient({
       {/* Suggestions */}
       {suggestedQuestions.length > 0 && !isProcessing && (
         <div className="w-full max-w-sm my-8 md:max-w-2xl">
-          <p className="text-slate-500 text-sm mb-4">
+          <p className="text-muted-foreground text-sm mb-4">
             <span className="font-medium">Suggestions</span>{" "}
-            <span className="text-slate-400">based on your uploaded CSV:</span>
+            <span className="text-muted-foreground">based on your uploaded CSV:</span>
           </p>
           <div className="flex flex-col gap-3">
             {suggestedQuestions.map((suggestion: SuggestedQuestion) => (
