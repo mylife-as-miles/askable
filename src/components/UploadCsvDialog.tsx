@@ -63,7 +63,7 @@ export function UploadCsvDialog({ open, onOpenChange, onFileSelected, loading = 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-  <DialogContent className="w-full max-w-[920px] p-0 overflow-hidden border border-border/40 shadow-[0_10px_40px_rgba(2,6,23,0.2)] rounded-2xl bg-popover/90 backdrop-blur-xl text-popover-foreground">
+      <DialogContent className="w-full max-w-[920px] max-h-[90svh] p-0 overflow-hidden md:overflow-visible border border-border/40 shadow-[0_10px_40px_rgba(2,6,23,0.2)] rounded-2xl bg-popover/90 backdrop-blur-xl text-popover-foreground">
         {/* Header banner */}
         <div className="relative text-white p-6">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600" />

@@ -5,7 +5,7 @@ import { Upload, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 
 export function HeroSection() {
   return (
-    <div className="w-full flex flex-col md:flex-row items-center md:items-start md:justify-between gap-10">
+  <div className="w-full flex flex-col md:flex-row items-center md:items-start md:justify-between gap-10 px-4 sm:px-6">
       <div className="max-w-xl flex flex-col items-center md:items-start">
         <img src="/logo.svg" alt="Askable" className="size-10 mb-6" />
 
