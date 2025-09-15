@@ -8,8 +8,6 @@ import { DbMessage, loadChat, saveNewMessage } from "@/lib/chat-store";
 import { limitMessages } from "@/lib/limits";
 import { generateCodePrompt } from "@/lib/prompts";
 import { CHAT_MODELS } from "@/lib/models";
-import { AIStream, StreamingTextResponse } from "ai";
-
 export async function POST(req: Request) {
   const { id, message, model } = await req.json();
 
@@ -72,16 +70,13 @@ export async function POST(req: Request) {
         csvRows: chat?.csvRows || [],
       }),
       messages: coreMessagesForStream as CoreMessage[],
-    });
-
-    const stream = result.toAIStream({
-      async onFinal(completion) {
+      async onFinish({ text }) {
         const end = Date.now();
         const duration = (end - start) / 1000;
         const assistantMessage: DbMessage = {
           id: generateId(),
           role: "assistant",
-          content: completion,
+          content: text,
           createdAt: new Date(),
           duration,
           model: selectedModel,
@@ -90,7 +85,7 @@ export async function POST(req: Request) {
       },
     });
 
-    return new StreamingTextResponse(stream);
+    return result.toTextStreamResponse();
   } catch (err) {
     console.error(err);
     return new Response("Error generating response", { status: 500 });
