@@ -36,16 +36,16 @@ export function HeroSection() {
 
         {/* CTAs */}
         <div className="mt-6 flex items-center gap-3">
-          <a href="#upload">
-            <Button size="lg" className="gap-2">
+          <Button asChild size="lg" className="gap-2">
+            <a href="#upload">
               <Upload className="size-4" /> Upload CSV
-            </Button>
-          </a>
-          <a href="/" rel="noreferrer">
-            <Button variant="outline" size="lg" className="gap-2">
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="lg" className="gap-2">
+            <a href="/" rel="noreferrer">
               Learn more <ArrowRight className="size-4" />
-            </Button>
-          </a>
+            </a>
+          </Button>
         </div>
       </div>
 
