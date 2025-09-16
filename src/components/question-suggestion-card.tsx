@@ -17,19 +17,21 @@ export function QuestionSuggestionCard({
       className={cn(
         isLoading ? "animate-pulse" : "",
         onClick ? "cursor-pointer" : "",
-        "flex justify-start items-start overflow-hidden gap-2.5 px-3 py-2 rounded-lg bg-slate-50 border-[0.7px] border-[#cad5e2] w-full md:w-fit md:min-w-[440px]"
+        "group flex justify-start items-start overflow-hidden gap-3 px-3.5 py-2.5 rounded-xl bg-muted/60 supports-[backdrop-filter]:bg-muted/40 backdrop-blur border border-border w-full md:w-fit md:min-w-[440px] transition-colors hover:border-ring"
       )}
       onClick={onClick && onClick}
     >
       <div className="flex items-start gap-3">
-        <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+        <div className="w-5 h-5 rounded-full bg-card flex items-center justify-center flex-shrink-0 mt-0.5 border border-border">
           <img
             src={isLoading ? "/loading.svg" : "/suggestion.svg"}
             alt="suggestion"
-            className={cn(isLoading ? "animate-spin" : "", "size-[18px]")}
+            className={cn(isLoading ? "animate-spin" : "", "size-[18px] opacity-90 group-hover:opacity-100 transition-opacity")}
           />
         </div>
-        <p className="text-sm text-slate-700 leading-relaxed">{question}</p>
+        <p className="text-sm text-foreground/90 leading-relaxed line-clamp-2">
+          {question}
+        </p>
       </div>
     </Card>
   );

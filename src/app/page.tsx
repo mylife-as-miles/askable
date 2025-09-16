@@ -211,12 +211,12 @@ function AskableClient({
       )}
       {/* Suggestions */}
       {suggestedQuestions.length > 0 && !isProcessing && (
-        <div className="w-full max-w-sm my-8 md:max-w-2xl mx-auto text-center">
-          <p className="text-muted-foreground text-sm mb-4">
+        <div className="w-full max-w-sm my-10 md:max-w-2xl mx-auto text-center">
+          <p className="text-muted-foreground text-sm mb-4 md:mb-5">
             <span className="font-medium">Suggestions</span>{" "}
             <span className="text-muted-foreground">based on your uploaded CSV:</span>
           </p>
-          <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 justify-items-stretch">
             {suggestedQuestions.map((suggestion: SuggestedQuestion) => (
               <QuestionSuggestionCard
                 key={suggestion.id}
