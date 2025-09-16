@@ -32,9 +32,16 @@ export function formatLLMTimestamp(dateString: string | number | Date): string {
 }
 
 export function extractCodeFromText(text: string) {
-  const codeRegex = /```python\s*([\s\S]*?)\s*```/g;
-  const match = codeRegex.exec(text);
-  return match ? match[1] : null;
+  if (!text) return null;
+  // Prefer python fenced blocks
+  const pyRegex = /```python\s*([\s\S]*?)\s*```/m;
+  const pyMatch = pyRegex.exec(text);
+  if (pyMatch) return pyMatch[1];
+
+  // Fallback: any fenced block
+  const anyRegex = /```[a-zA-Z0-9_-]*\s*([\s\S]*?)\s*```/m;
+  const anyMatch = anyRegex.exec(text);
+  return anyMatch ? anyMatch[1] : null;
 }
 
 export type UploadedFile = {

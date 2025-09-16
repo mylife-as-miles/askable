@@ -28,6 +28,7 @@ import { useLLMModel } from "@/hooks/useLLMModel";
 import { CodeRunning } from "./chatTools/CodeRunning";
 import { CHAT_MODELS } from "@/lib/models";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export type Message = UIMessage & {
   isThinking?: boolean;
@@ -77,6 +78,22 @@ export function ChatScreen({
         },
       };
     },
+    async onResponse(res) {
+      // Surface backend errors to the user
+      if (!res.ok) {
+        try {
+          const data = await res.clone().json();
+          toast.error(
+            (data as any)?.error || (data as any)?.message || `Chat error: ${res.status}`
+          );
+        } catch {
+          toast.error(`Chat error: ${res.status}`);
+        }
+      }
+    },
+    onError(e) {
+      toast.error((e as any)?.message || "Chat request failed");
+    },
     onFinish: async (message) => {
       const code = extractCodeFromText(message.content);
       if (!code) return;
@@ -125,8 +142,8 @@ export function ChatScreen({
         result = {
           status: "error",
           outputs: [],
-          error_message: error.message,
-        };
+          error_message: error?.message || "Unknown error",
+        } as RunPythonResult;
       }
 
       const errorOccurred = result.status === "error";
@@ -317,12 +334,19 @@ export function ChatScreen({
 
                     {/* Render animated code pane for Python blocks, plus normal markdown below */}
                     {(() => {
-                      const codeMatch = /```python\s*([\s\S]*?)\s*```/m.exec(
-                        currentMessage.content || ""
-                      );
-                      const code = codeMatch?.[1];
+                      const content = currentMessage.content || "";
+                      // Prefer python fenced blocks
+                      const pyMatch = /```python\s*([\s\S]*?)\s*```/m.exec(content);
+                      let code = pyMatch?.[1];
+                      let lang = "python";
+                      if (!code) {
+                        // Fallback to any fenced code block
+                        const anyMatch = /```([a-zA-Z0-9_-]*)\s*([\s\S]*?)\s*```/m.exec(content);
+                        code = anyMatch?.[2];
+                        lang = anyMatch?.[1] || "text";
+                      }
                       return code ? (
-                        <CodePane code={code} lang="python" fileLabel="analysis.py" />
+                        <CodePane code={code} lang={lang} fileLabel={lang === "python" ? "analysis.py" : `snippet.${lang}`} />
                       ) : null;
                     })()}
 
