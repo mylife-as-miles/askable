@@ -1,6 +1,5 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
-import { toFile } from "openai/uploads";
 
 export const runtime = "nodejs"; // ensure Node runtime for file uploads
 
@@ -32,32 +31,26 @@ export async function POST(req: Request) {
 
     const client = new OpenAI({ apiKey });
 
-    // Upload files if provided
-    const uploaded: { file_id: string }[] = [];
-    for (const f of files) {
-      try {
-        const fileObj = await toFile(Buffer.from(f.content, "utf-8"), f.name, {
-          type: f.type || "text/plain",
-        });
-        const uploadedFile = await client.files.create({
-          file: fileObj,
-          purpose: "assistants",
-        });
-        uploaded.push({ file_id: uploadedFile.id });
-      } catch (e) {
-        return NextResponse.json(
-          { error: `Failed to upload file ${f.name}: ${(e as Error)?.message || e}` },
-          { status: 500 }
-        );
+    // Build a Python preamble to write provided files to disk before running user code
+    let preamble = "";
+    if (files.length > 0) {
+      preamble += "import base64\nimport os\n\n";
+      for (const f of files) {
+        // Basic filename sanitization: keep simple names
+        const safeName = (f.name || "data.csv").replace(/[^a-zA-Z0-9._-]/g, "_");
+        const b64 = Buffer.from(f.content, "utf-8").toString("base64");
+        preamble += `# Write provided file: ${safeName}\n`;
+        preamble += `with open("${safeName}", "w", encoding="utf-8") as _tmp:\n    _tmp.write(base64.b64decode("${b64}").decode("utf-8"))\n\n`;
       }
     }
+
+    const combinedCode = preamble ? `${preamble}\n${code}` : code;
 
     const inputItems: any[] = [
       {
         role: "user",
-        content: [{ type: "input_text", text: `Run this Python code:\n\n${code}` }],
+        content: [{ type: "input_text", text: `Run this Python code:\n\n${combinedCode}` }],
       },
-      ...uploaded.map((u) => ({ role: "user", content: [{ type: "input_file", file_id: u.file_id }] })),
     ];
 
     const response = await client.responses.create({
