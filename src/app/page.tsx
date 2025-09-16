@@ -1,6 +1,7 @@
 "use client";
 
 import React, { Suspense, useState, useCallback } from "react";
+import { cn } from "@/lib/utils";
 import { Header } from "@/components/header";
 import { AppSidebar } from "@/components/AppSidebar";
 // import { UploadArea } from "@/components/upload-area";
@@ -24,9 +25,11 @@ export interface SuggestedQuestion {
 function AskableClient({
   setIsLoading,
   onUploadSuccess,
+  heroHidden = false,
 }: {
   setIsLoading: (load: boolean) => void;
   onUploadSuccess?: () => void;
+  heroHidden?: boolean;
 }) {
   const { selectedModelSlug } = useLLMModel();
   const [localFile, setLocalFile] = useState<File | null>(null);
@@ -194,7 +197,10 @@ function AskableClient({
       />
       {/* Large Input Area */}
   {localFile && (
-    <div className="w-full max-w-screen-lg lg:max-w-screen-xl mx-auto flex justify-center">
+    <div className={cn(
+            "w-full max-w-screen-lg lg:max-w-screen-xl mx-auto flex justify-center",
+            heroHidden ? "mt-6 md:mt-8" : ""
+          )}>
           <PromptInput
             value={inputValue}
             onChange={setInputValue}
@@ -278,6 +284,7 @@ export default function Askable() {
             <AskableClient
               setIsLoading={setIsLoading}
               onUploadSuccess={() => setHideHero(true)}
+              heroHidden={hideHero}
             />
           </Suspense>
         </div>
