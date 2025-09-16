@@ -1,9 +1,5 @@
-import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true, // needed for browser use
-});
+// Client-side helper that calls our server API to run Python code.
+// This avoids exposing OPENAI_API_KEY in the browser and works on Vercel.
 
 export interface RunPythonResult {
   status: "success" | "error";
@@ -23,44 +19,31 @@ export async function runPython(
   files?: (File | Blob)[]
 ): Promise<RunPythonResult> {
   try {
-    // Upload files if provided
-    let uploadedFiles: { file_id: string }[] = [];
+    // Prepare file contents to send to server
+    let serialized: Array<{ name: string; content: string; type?: string }> = [];
     if (files && files.length > 0) {
-      for (const file of files) {
-        const upload = await client.files.create({
-          file, // Directly pass the File/Blob object
-          purpose: "assistants", // Required purpose
-        });
-        uploadedFiles.push({ file_id: upload.id });
-      }
+      const items = await Promise.all(
+        files.map(async (f: any, idx) => {
+          const name = (f?.name as string) || `file-${idx}.txt`;
+          const type = f?.type || "text/plain";
+          const content = await f.text();
+          return { name, content, type };
+        })
+      );
+      serialized = items;
     }
 
-    // Build input for the API
-    const inputItems: any[] = [
-      {
-        role: "user",
-        content: [{ type: "input_text", text: `Run this Python code:\n\n${code}` }],
-      },
-      ...uploadedFiles.map((f) => ({
-        role: "user",
-        content: [{ type: "file_reference", file_id: f.file_id }],
-      })),
-    ];
-
-    // Execute Python code with Code Interpreter
-    const response = await client.responses.create({
-      model: "o4-mini",
-      tools: [{ type: "code_interpreter", container: { type: "auto" } }],
-      input: inputItems,
+    const response = await fetch("/api/run-python", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, files: serialized }),
     });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data?.error || data?.error_message || `HTTP ${response.status}`);
+    }
 
-    // Extract output text
-    const outputText = response.output_text || JSON.stringify(response.output);
-
-    return {
-      status: "success",
-      outputs: [{ type: "text", data: outputText }],
-    };
+    return data as RunPythonResult;
   } catch (err: any) {
     return {
       status: "error",

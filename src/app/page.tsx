@@ -266,8 +266,8 @@ export default function Askable() {
               <HeroSection />
             </div>
           ) : (
-            <div className="flex-1 w-full grid place-items-center px-4">
-              <div className="w-full max-w-screen-xl mx-auto flex flex-col items-center text-center gap-6">
+            <div className="w-full px-4">
+              <div className="w-full max-w-screen-xl mx-auto flex flex-col items-center text-center gap-6 pt-8 md:pt-10">
                 <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-foreground">
                   What can I analyze for you?
                 </h1>
