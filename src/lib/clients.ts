@@ -14,6 +14,11 @@ type Pool = mysql.Pool;
 
 let pool: Pool | undefined;
 
+function hasDbEnv() {
+  const { TIDB_HOST, TIDB_USER, TIDB_PASSWORD, TIDB_DATABASE } = process.env;
+  return Boolean(TIDB_HOST && TIDB_USER && TIDB_PASSWORD && TIDB_DATABASE);
+}
+
 function getConfig() {
   const {
     TIDB_HOST,
@@ -55,6 +60,9 @@ function createPool(): Pool {
 }
 
 export async function getDb(): Promise<Pool> {
+  if (!hasDbEnv()) {
+    throw new Error("Database environment variables are not configured");
+  }
   if (!pool) {
     pool = createPool();
   }

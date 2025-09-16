@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 import { ChatHistoryMenu } from "./ChatHistoryMenu";
 import { cn } from "@/lib/utils";
 import TooltipUsage from "./TooltipUsage";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 interface HeaderProps {
   chatId?: string;
@@ -22,7 +23,7 @@ export function Header({ chatId }: HeaderProps) {
   if (!mounted) return <></>;
 
   return (
-    <>
+    <SidebarProvider>
       <aside
         className={cn(
           `md:flex-col md:w-[60px] md:left-0 md:top-0 items-center border-border z-30 bg-card/80 md:bg-card backdrop-blur supports-[backdrop-filter]:bg-card/60 text-foreground
@@ -78,6 +79,6 @@ export function Header({ chatId }: HeaderProps) {
   {/* Spacer for mobile header height */}
   <div className={cn("block md:hidden", "min-h-[70px]")} />
   <div className={cn("hidden md:block", "min-h-[10px]")} />
-    </>
+    </SidebarProvider>
   );
 }

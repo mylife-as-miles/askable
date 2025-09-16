@@ -23,23 +23,29 @@ async function getUsage(userFingerPrint: string): Promise<{ count: number, oldes
 }
 
 export async function getRemainingMessages(userFingerPrint: string): Promise<{ remaining: number; reset: number }> {
-    if (isLocal) return { remaining: dailyLimit, reset: new Date().getTime() + windowSec * 1000 };
-
-    const { count, oldestTimestamp } = await getUsage(userFingerPrint);
-    const remaining = dailyLimit - count;
-    const reset = oldestTimestamp ? oldestTimestamp.getTime() + windowSec * 1000 : new Date().getTime() + windowSec * 1000;
-
-    return { remaining: remaining > 0 ? remaining : 0, reset };
+    // In local, always allow
+    if (isLocal) return { remaining: dailyLimit, reset: Date.now() + windowSec * 1000 };
+    try {
+        const { count, oldestTimestamp } = await getUsage(userFingerPrint);
+        const remaining = dailyLimit - count;
+        const reset = oldestTimestamp ? oldestTimestamp.getTime() + windowSec * 1000 : Date.now() + windowSec * 1000;
+        return { remaining: remaining > 0 ? remaining : 0, reset };
+    } catch (e) {
+        // Graceful fallback if DB is not configured or temporarily unavailable
+        return { remaining: dailyLimit, reset: Date.now() + windowSec * 1000 };
+    }
 }
 
 export async function limitMessages(userFingerPrint: string): Promise<void> {
     if (isLocal) return;
-
-    const { count } = await getUsage(userFingerPrint);
-
-    if (count >= dailyLimit) {
-        throw new Error("Too many messages");
+    try {
+        const { count } = await getUsage(userFingerPrint);
+        if (count >= dailyLimit) {
+            throw new Error("Too many messages");
+        }
+        await runQuery('INSERT INTO rate_limits (id, timestamp) VALUES (?, NOW())', [userFingerPrint]);
+    } catch (e) {
+        // If DB is unavailable, do not hard fail the request; allow and rely on upstream rate limits
+        return;
     }
-
-    await runQuery('INSERT INTO rate_limits (id, timestamp) VALUES (?, NOW())', [userFingerPrint]);
 }
