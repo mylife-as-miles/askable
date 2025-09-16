@@ -48,7 +48,7 @@ export function PromptInput({
   };
 
   return (
-    <div className="relative border border-border/80 bg-card/80 supports-[backdrop-filter]:bg-card/60 backdrop-blur rounded-xl p-4 md:p-5 shadow-sm transition-colors focus-within:ring-1 focus-within:ring-ring focus-within:border-transparent">
+    <div className="relative border border-ring bg-card/80 supports-[backdrop-filter]:bg-card/60 backdrop-blur rounded-xl p-4 md:p-5 shadow-sm transition-colors focus-within:ring-1 focus-within:ring-ring focus-within:border-transparent">
       <textarea
         ref={textareaRef}
         value={value}
@@ -61,15 +61,8 @@ export function PromptInput({
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
       />
-
       <div className="flex flex-row flex-wrap items-center justify-between gap-2 sm:gap-3 mt-3 min-w-0">
-        <ModelDropdown
-          models={models}
-          value={selectedModelSlug}
-          onChange={setModel}
-        />
-
-        <div className="flex flex-row gap-2 items-center min-w-0">
+        <div className="flex items-center gap-2">
           {uploadedFile && (
             <div
               className="flex flex-row items-center justify-center min-w-0 relative overflow-hidden gap-1.5 pl-2 pr-1 py-1.5 rounded-md bg-muted border border-border md:pl-3 md:pr-2 hover:border-ring transition-colors"
@@ -89,7 +82,13 @@ export function PromptInput({
               <DropdownFileActions uploadedFile={uploadedFile} />
             </div>
           )}
-
+        </div>
+        <div className="flex flex-row gap-2 items-center min-w-0">
+          <ModelDropdown
+            models={models}
+            value={selectedModelSlug}
+            onChange={setModel}
+          />
           {isLLMAnswering ? (
             <Button
               onClick={onStopLLM}

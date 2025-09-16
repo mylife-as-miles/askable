@@ -12,7 +12,7 @@ export function ChatInput({
   onSend,
   uploadedFile,
   onStopLLM,
-  placeholder = "Ask anything...",
+  placeholder = "How can I help you?",
 }: {
   isLLMAnswering: boolean;
   value: string;
