@@ -10,18 +10,11 @@ export type ChatModel = {
 
 export const CHAT_MODELS: ChatModel[] = [
   {
-    logo: 'https://cdn.prod.website-files.com/650c3b59079d92475f37b68f/6798c7d256b428d5c7991fef_66f41918314a4184b51788ed_meta-logo.png',
-    title: 'Llama 3.3 70B',
-    model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
-    slug: 'llama-3-3',
-    isDefault: true,
-    contextLength: 128000,
-  },
-  {
     logo: 'https://cdn.prod.website-files.com/650c3b59079d92475f37b68f/6798c7d11669ad7315d427af_66f41a324f1d713df2cbfbf4_deepseek-logo.webp',
     title: 'DeepSeek-V3.1',
     model: 'deepseek/deepseek-chat-v3.1:free',
     slug: 'deepseek-v3-1',
+    isDefault: true,
     contextLength: 128000,
   },
   {
