@@ -26,16 +26,44 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
       setLoading(false);
       return;
     }
-    // Fetch chat metadata from backend
+    // Try backend for enriched titles
     if (typeof window === "undefined") return; // avoid during build/SSR
     fetch("/api/chat/history", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ids }),
     })
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setChatLinks(data);
+      .then(async (res) => {
+        if (!res.ok) throw new Error("history fetch failed");
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setChatLinks(data);
+          return;
+        }
+        throw new Error("empty history");
+      })
+      .catch(() => {
+        // Fallback: read minimal metadata from localStorage
+        const metas = ids
+          .map((id) => {
+            try {
+              const raw = localStorage.getItem(`chatMeta:${id}`);
+              if (!raw) return null;
+              const meta = JSON.parse(raw);
+              return { id, title: meta?.title || id, createdAt: meta?.createdAt };
+            } catch {
+              return { id, title: id };
+            }
+          })
+          .filter(Boolean) as { id: string; title: string; createdAt?: string }[];
+        if (metas.length > 0) {
+          metas.sort((a, b) => {
+            const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return tb - ta;
+          });
+          setChatLinks(metas);
+        }
       })
       .finally(() => setLoading(false));
   }, []);
@@ -64,13 +92,13 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
               isActive && "bg-sidebar-accent"
             )}
           >
-            <MessageSquare className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+            <MessageSquare className="text-foreground h-5 w-5 flex-shrink-0" />
             <motion.span
               animate={{
                 display: animate ? (open ? "inline-block" : "none") : "inline-block",
                 opacity: animate ? (open ? 1 : 0) : 1,
               }}
-              className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+              className="text-foreground text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
             >
               {chat.title}
             </motion.span>

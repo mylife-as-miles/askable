@@ -178,6 +178,23 @@ function AskableClient({
       csvRows: csvRows,
       fileName: localFile.name,
     });
+    // Persist chat id and basic metadata locally for history (works without DB)
+    try {
+      const key = "visitedChatIds";
+      const metaKey = (id: string) => `chatMeta:${id}`;
+      const now = new Date().toISOString();
+      const title = text.slice(0, 50);
+      const raw = localStorage.getItem(key);
+      let ids: string[] = [];
+      try { ids = JSON.parse(raw || "[]"); } catch {}
+      // add to front, ensure uniqueness
+      ids = [id, ...ids.filter((x) => x !== id)].slice(0, 50);
+      localStorage.setItem(key, JSON.stringify(ids));
+      localStorage.setItem(
+        metaKey(id),
+        JSON.stringify({ id, title, createdAt: now, fileName: localFile.name })
+      );
+    } catch {}
     // Pass datasetId via query so the chat page can reconstruct from IndexedDB when DB is unavailable
     redirect(`/chat/${id}?model=${selectedModelSlug}&datasetId=${encodeURIComponent(datasetId)}`);
   };
