@@ -177,7 +177,7 @@ function AskableClient({
       />
       {/* Large Input Area */}
   {localFile && (
-        <div className="w-full max-w-sm md:max-w-3xl mx-auto flex justify-center">
+    <div className="w-full max-w-screen-lg lg:max-w-screen-xl mx-auto flex justify-center">
           <PromptInput
             value={inputValue}
             onChange={setInputValue}
@@ -211,12 +211,12 @@ function AskableClient({
       )}
       {/* Suggestions */}
       {suggestedQuestions.length > 0 && !isProcessing && (
-        <div className="w-full max-w-sm my-10 md:max-w-3xl mx-auto text-center">
+        <div className="w-full max-w-screen-lg lg:max-w-screen-xl my-10 mx-auto text-center">
           <p className="text-muted-foreground text-sm mb-4 md:mb-5">
             <span className="font-medium">Suggestions</span>{" "}
             <span className="text-muted-foreground">based on your uploaded CSV:</span>
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 justify-items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 justify-items-stretch">
             {suggestedQuestions.map((suggestion: SuggestedQuestion) => (
               <QuestionSuggestionCard
                 key={suggestion.id}
@@ -244,21 +244,22 @@ export default function Askable() {
       <AppSidebar />
       <div className="flex flex-1">
         <div className="p-2 md:p-10 rounded-tl-2xl border border-border bg-card flex flex-col gap-2 flex-1 w-full h-full max-w-screen-2xl mx-auto">
-          {!hideHero && (
+          {!hideHero ? (
             <div className="flex flex-col items-center md:items-start pt-16 md:pt-[132px] pb-8 mx-auto w-full">
               <HeroSection />
             </div>
-          )}
-          {hideHero && (
-            <div className="flex flex-col items-center text-center pt-10 pb-4 mx-auto w-full">
-              <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-foreground">
-                What can I analyze for you?
-              </h1>
+          ) : (
+            <div className="flex-1 w-full grid place-items-center px-4">
+              <div className="w-full max-w-screen-xl mx-auto flex flex-col items-center text-center gap-6">
+                <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-foreground">
+                  What can I analyze for you?
+                </h1>
+                <Suspense fallback={<div>Loading...</div>}>
+                  <AskableClient setIsLoading={setIsLoading} onUploadSuccess={() => setHideHero(true)} />
+                </Suspense>
+              </div>
             </div>
           )}
-          <Suspense fallback={<div>Loading...</div>}>
-            <AskableClient setIsLoading={setIsLoading} onUploadSuccess={() => setHideHero(true)} />
-          </Suspense>
         </div>
       </div>
     </div>
