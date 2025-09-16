@@ -17,7 +17,7 @@ export function QuestionSuggestionCard({
       className={cn(
         isLoading ? "animate-pulse" : "",
         onClick ? "cursor-pointer" : "",
-        "group flex justify-start items-start overflow-hidden gap-3 px-3.5 py-2.5 rounded-xl bg-muted/60 supports-[backdrop-filter]:bg-muted/40 backdrop-blur border border-border w-full md:w-fit md:min-w-[440px] transition-colors hover:border-ring"
+        "group flex justify-start items-start overflow-hidden gap-3 px-3.5 py-2.5 rounded-xl bg-muted/60 supports-[backdrop-filter]:bg-muted/40 backdrop-blur border border-border w-full transition-colors hover:border-ring"
       )}
       onClick={onClick && onClick}
     >

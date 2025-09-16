@@ -177,7 +177,7 @@ function AskableClient({
       />
       {/* Large Input Area */}
   {localFile && (
-        <div className="w-full max-w-sm md:max-w-2xl mx-auto flex justify-center">
+        <div className="w-full max-w-sm md:max-w-3xl mx-auto flex justify-center">
           <PromptInput
             value={inputValue}
             onChange={setInputValue}
@@ -189,7 +189,7 @@ function AskableClient({
               csvHeaders: csvHeaders,
               csvRows: csvRows,
             }}
-            textAreaClassName="h-[88px] md:h-[100px]"
+            textAreaClassName="h-[120px] md:h-[140px]"
             isLLMAnswering={false}
             onStopLLM={() => {}}
           />
@@ -197,7 +197,7 @@ function AskableClient({
       )}
       {/* Processing State */}
       {isProcessing && (
-        <div className="w-full max-w-sm my-8 md:max-w-2xl mx-auto text-center">
+        <div className="w-full max-w-sm my-8 md:max-w-3xl mx-auto text-center">
           <p className="text-muted-foreground text-sm mb-4 animate-pulse">
             <span className="font-medium">Generating suggestions</span>{" "}
             <span className="text-muted-foreground">...</span>
@@ -211,7 +211,7 @@ function AskableClient({
       )}
       {/* Suggestions */}
       {suggestedQuestions.length > 0 && !isProcessing && (
-        <div className="w-full max-w-sm my-10 md:max-w-2xl mx-auto text-center">
+        <div className="w-full max-w-sm my-10 md:max-w-3xl mx-auto text-center">
           <p className="text-muted-foreground text-sm mb-4 md:mb-5">
             <span className="font-medium">Suggestions</span>{" "}
             <span className="text-muted-foreground">based on your uploaded CSV:</span>
