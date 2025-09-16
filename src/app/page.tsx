@@ -23,8 +23,10 @@ export interface SuggestedQuestion {
 
 function AskableClient({
   setIsLoading,
+  onUploadSuccess,
 }: {
   setIsLoading: (load: boolean) => void;
+  onUploadSuccess?: () => void;
 }) {
   const { selectedModelSlug } = useLLMModel();
   const [localFile, setLocalFile] = useState<File | null>(null);
@@ -71,9 +73,11 @@ function AskableClient({
         fileName: file.name,
       });
 
-      setDatasetId(newId);
-      toast.success("CSV saved locally. Ask a question →");
-      setUploadOpen(false);
+  setDatasetId(newId);
+  toast.success("CSV saved locally. Ask a question →");
+  setUploadOpen(false);
+  // Hide hero section once upload is saved successfully, mirroring dialog close
+  onUploadSuccess?.();
 
       setUploadStep("generating");
       const response = await fetch("/api/generate-questions", {
@@ -229,6 +233,7 @@ function AskableClient({
 
 export default function Askable() {
   const [isLoading, setIsLoading] = useState(false);
+  const [hideHero, setHideHero] = useState(false);
 
   if (isLoading) {
     return <Loading />;
@@ -239,11 +244,13 @@ export default function Askable() {
       <AppSidebar />
       <div className="flex flex-1">
         <div className="p-2 md:p-10 rounded-tl-2xl border border-border bg-card flex flex-col gap-2 flex-1 w-full h-full max-w-screen-2xl mx-auto">
-          <div className="flex flex-col items-center md:items-start pt-16 md:pt-[132px] pb-8 mx-auto w-full">
-            <HeroSection />
-          </div>
+          {!hideHero && (
+            <div className="flex flex-col items-center md:items-start pt-16 md:pt-[132px] pb-8 mx-auto w-full">
+              <HeroSection />
+            </div>
+          )}
           <Suspense fallback={<div>Loading...</div>}>
-            <AskableClient setIsLoading={setIsLoading} />
+            <AskableClient setIsLoading={setIsLoading} onUploadSuccess={() => setHideHero(true)} />
           </Suspense>
         </div>
       </div>
