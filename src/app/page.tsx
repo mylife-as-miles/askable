@@ -88,25 +88,6 @@ function AskableClient({
         headers: {
           "Content-Type": "application/json",
         },
-    // Persist minimal chat history locally for history menu fallback
-    try {
-      const key = "visitedChatIds";
-      const existing = JSON.parse(localStorage.getItem(key) || "[]");
-      if (!Array.isArray(existing)) {
-        localStorage.setItem(key, JSON.stringify([id]));
-      } else if (!existing.includes(id)) {
-        existing.unshift(id);
-        // keep last 50
-        localStorage.setItem(key, JSON.stringify(existing.slice(0, 50)));
-      }
-      const meta = {
-        id,
-        title: text.slice(0, 60),
-        fileName: localFile.name,
-        createdAt: new Date().toISOString(),
-      };
-      localStorage.setItem(`chatMeta:${id}`, JSON.stringify(meta));
-    } catch {}
         body: JSON.stringify({ columns: headers }),
       });
 

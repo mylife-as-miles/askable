@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MessageSquare } from "lucide-react";
@@ -14,6 +14,7 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
   const [isLoading, setLoading] = useState(true);
   const pathname = usePathname();
   const { open, animate } = useSidebar();
+  const [hasAny, setHasAny] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -22,6 +23,7 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
     try {
       ids = JSON.parse(localStorage.getItem(key) || "[]");
     } catch {}
+    setHasAny(ids.length > 0);
     if (ids.length === 0) {
       setLoading(false);
       return;
@@ -62,11 +64,24 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
             const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
             return tb - ta;
           });
-          setChatLinks(metas);
+          setChatLinks(metas.map((m) => ({ id: m.id, title: m.title })));
         }
       })
       .finally(() => setLoading(false));
   }, []);
+
+  const handleClear = () => {
+    try {
+      const key = "visitedChatIds";
+      const raw = localStorage.getItem(key);
+      let ids: string[] = [];
+      try { ids = JSON.parse(raw || "[]"); } catch {}
+      ids.forEach((id) => localStorage.removeItem(`chatMeta:${id}`));
+      localStorage.removeItem(key);
+      setChatLinks([]);
+      setHasAny(false);
+    } catch {}
+  };
 
   if (isLoading) {
     return (
@@ -80,6 +95,23 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
 
   return (
     <div className="flex flex-col gap-2">
+      {/* Header actions */}
+      <div className="flex items-center justify-between px-2">
+        <span className="text-xs text-muted-foreground">History</span>
+        {hasAny && (
+          <button
+            type="button"
+            className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
+            onClick={handleClear}
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
+      {!isLoading && chatLinks.length === 0 && (
+        <div className="px-2 py-1 text-xs text-muted-foreground">No recent chats</div>
+      )}
       {chatLinks.map((chat) => {
         const href = `/chat/${chat.id}`;
         const isActive = pathname === href;
@@ -98,7 +130,7 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
                 display: animate ? (open ? "inline-block" : "none") : "inline-block",
                 opacity: animate ? (open ? 1 : 0) : 1,
               }}
-              className="text-foreground text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+              className="text-foreground text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 max-w-[180px] truncate"
             >
               {chat.title}
             </motion.span>
