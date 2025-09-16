@@ -254,12 +254,15 @@ export default function Askable() {
                 <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-foreground">
                   What can I analyze for you?
                 </h1>
-                <Suspense fallback={<div>Loading...</div>}>
-                  <AskableClient setIsLoading={setIsLoading} onUploadSuccess={() => setHideHero(true)} />
-                </Suspense>
               </div>
             </div>
           )}
+          <Suspense fallback={<div>Loading...</div>}>
+            <AskableClient
+              setIsLoading={setIsLoading}
+              onUploadSuccess={() => setHideHero(true)}
+            />
+          </Suspense>
         </div>
       </div>
     </div>
