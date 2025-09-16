@@ -84,7 +84,8 @@ export async function POST(req: Request) {
       },
     });
 
-    return result.toTextStreamResponse();
+  // Return Data Stream protocol for compatibility with useChat client parser
+  return result.toDataStreamResponse();
   } catch (err) {
     console.error(err);
     return new Response("Error generating response", { status: 500 });
