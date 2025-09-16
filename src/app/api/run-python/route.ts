@@ -57,7 +57,7 @@ export async function POST(req: Request) {
         role: "user",
         content: [{ type: "input_text", text: `Run this Python code:\n\n${code}` }],
       },
-      ...uploaded.map((u) => ({ role: "user", content: [{ type: "file_reference", file_id: u.file_id }] })),
+      ...uploaded.map((u) => ({ role: "user", content: [{ type: "input_file", file_id: u.file_id }] })),
     ];
 
     const response = await client.responses.create({

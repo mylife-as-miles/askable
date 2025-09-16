@@ -339,24 +339,30 @@ export function ChatScreen({
                     {/* Render animated code pane for Python blocks, plus normal markdown below */}
                     {(() => {
                       const content = currentMessage.content || "";
-                      // Prefer python fenced blocks
+                      // Prefer python fenced blocks, else any fenced block
                       const pyMatch = /```python\s*([\s\S]*?)\s*```/m.exec(content);
-                      let code = pyMatch?.[1];
-                      let lang = "python";
-                      if (!code) {
-                        // Fallback to any fenced code block
-                        const anyMatch = /```([a-zA-Z0-9_-]*)\s*([\s\S]*?)\s*```/m.exec(content);
-                        code = anyMatch?.[2];
-                        lang = anyMatch?.[1] || "text";
-                      }
-                      return code ? (
-                        <CodePane code={code} lang={lang} fileLabel={lang === "python" ? "analysis.py" : `snippet.${lang}`} />
-                      ) : null;
+                      const anyMatch = pyMatch ? null : /```([a-zA-Z0-9_-]*)\s*([\s\S]*?)\s*```/m.exec(content);
+                      const code = pyMatch?.[1] ?? anyMatch?.[2];
+                      const lang = pyMatch ? "python" : (anyMatch?.[1] || "text");
+                      if (!code) return null;
+                      return <CodePane code={code} lang={lang} fileLabel={lang === "python" ? "analysis.py" : `snippet.${lang}`} />;
                     })()}
 
-                    <div className="text-foreground text-sm prose mt-3">
-                      <MemoizedMarkdown id={currentMessage.id} content={currentMessage.content} />
-                    </div>
+                    {(() => {
+                      // If we showed a CodePane already, strip the first fenced code block from markdown to avoid duplicate preview
+                      const content = currentMessage.content || "";
+                      const showedPython = /```python\s*[\s\S]*?\s*```/m.test(content);
+                      const showedAny = showedPython || /```[a-zA-Z0-9_-]*\s*[\s\S]*?\s*```/m.test(content);
+                      let markdown = content;
+                      if (showedAny) {
+                        markdown = content.replace(/```[a-zA-Z0-9_-]*\s*[\s\S]*?\s*```/m, "");
+                      }
+                      return (
+                        <div className="text-foreground text-sm prose mt-3">
+                          <MemoizedMarkdown id={currentMessage.id} content={markdown} />
+                        </div>
+                      );
+                    })()}
 
                     {currentMessage.isThinking && <CodeRunning />}
 
