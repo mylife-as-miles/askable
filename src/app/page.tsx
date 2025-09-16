@@ -117,6 +117,22 @@ function AskableClient({
     };
     openIfUploadHash();
     window.addEventListener("hashchange", openIfUploadHash);
+    // Also capture any direct clicks on anchors to #upload to open the dialog immediately
+    const clickHandler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      // Traverse up to find an anchor element
+      const anchor = target.closest('a[href="#upload"]') as HTMLAnchorElement | null;
+      if (anchor) {
+        e.preventDefault();
+        setUploadOpen(true);
+        // Clean the hash if the browser applied it
+        if (typeof window !== "undefined") {
+          history.replaceState(null, "", window.location.pathname + window.location.search);
+        }
+      }
+    };
+    document.addEventListener("click", clickHandler, true);
     return () => window.removeEventListener("hashchange", openIfUploadHash);
   }, []);
 
@@ -159,7 +175,8 @@ function AskableClient({
       csvRows: csvRows,
       fileName: localFile.name,
     });
-    redirect(`/chat/${id}?model=${selectedModelSlug}`);
+    // Pass datasetId via query so the chat page can reconstruct from IndexedDB when DB is unavailable
+    redirect(`/chat/${id}?model=${selectedModelSlug}&datasetId=${encodeURIComponent(datasetId)}`);
   };
 
   return (

@@ -63,18 +63,28 @@ export async function createChat({
     title,
     createdAt: new Date(),
   };
-  await runQuery("INSERT INTO chats (id, data) VALUES (?, ?)", [
-    id,
-    JSON.stringify(initial),
-  ]);
+  try {
+    await runQuery("INSERT INTO chats (id, data) VALUES (?, ?)", [
+      id,
+      JSON.stringify(initial),
+    ]);
+  } catch (error) {
+    console.error("Failed to persist chat to DB; proceeding without DB.", error);
+    // Intentionally continue: we will rely on client-side IndexedDB to reconstruct context.
+  }
   return id;
 }
 
 export async function loadChat(id: string): Promise<ChatData | null> {
-  const [rows] = await runQuery<RowDataPacket[]>("SELECT data FROM chats WHERE id = ?", [id]);
-  if (rows.length === 0) return null;
-  const row = rows[0] as { data: string };
-  return JSON.parse(row.data) as ChatData;
+  try {
+    const [rows] = await runQuery<RowDataPacket[]>("SELECT data FROM chats WHERE id = ?", [id]);
+    if ((rows as any[]).length === 0) return null;
+    const row = (rows as any[])[0] as { data: string };
+    return JSON.parse(row.data) as ChatData;
+  } catch (error) {
+    console.error("Failed to load chat from DB; returning null.", error);
+    return null;
+  }
 }
 
 export async function saveNewMessage({
@@ -86,29 +96,41 @@ export async function saveNewMessage({
   message: DbMessage;
   chatData?: Partial<ChatData>;
 }): Promise<void> {
-  const chat = await loadChat(id);
-  if (chat) {
-    const updatedMessages = [...(chat.messages || []), message];
-    await runQuery("UPDATE chats SET data = ? WHERE id = ?", [
-      JSON.stringify({
-        ...chat,
-        messages: updatedMessages,
-      }),
-      id,
-    ]);
-  } else {
-    // If chat does not exist, create a new one with this message
-    const newChat: ChatData = {
-      messages: [message],
-      csvHeaders: chatData?.csvHeaders || null,
-      csvRows: chatData?.csvRows || null,
-      datasetId: chatData?.datasetId || null,
-      fileName: chatData?.fileName || null,
-      title: null,
-    };
-    await runQuery("INSERT INTO chats (id, data) VALUES (?, ?)", [
-      id,
-      JSON.stringify(newChat),
-    ]);
+  try {
+    const chat = await loadChat(id);
+    if (chat) {
+      const updatedMessages = [...(chat.messages || []), message];
+      try {
+        await runQuery("UPDATE chats SET data = ? WHERE id = ?", [
+          JSON.stringify({
+            ...chat,
+            messages: updatedMessages,
+          }),
+          id,
+        ]);
+      } catch (error) {
+        console.error("Failed to update chat in DB; skipping persist.", error);
+      }
+    } else {
+      // If chat does not exist, create a new one with this message
+      const newChat: ChatData = {
+        messages: [message],
+        csvHeaders: chatData?.csvHeaders || null,
+        csvRows: chatData?.csvRows || null,
+        datasetId: chatData?.datasetId || null,
+        fileName: chatData?.fileName || null,
+        title: null,
+      };
+      try {
+        await runQuery("INSERT INTO chats (id, data) VALUES (?, ?)", [
+          id,
+          JSON.stringify(newChat),
+        ]);
+      } catch (error) {
+        console.error("Failed to insert new chat in DB; skipping persist.", error);
+      }
+    }
+  } catch (outerError) {
+    console.error("saveNewMessage encountered an error; continuing.", outerError);
   }
 }
