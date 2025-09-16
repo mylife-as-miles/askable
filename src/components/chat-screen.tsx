@@ -95,7 +95,11 @@ export function ChatScreen({
       toast.error((e as any)?.message || "Chat request failed");
     },
     onFinish: async (message) => {
-      const code = extractCodeFromText(message.content);
+      // Only execute if a Python fenced block is present
+      const pyMatch = /```python\s*([\s\S]*?)\s*```/m.exec(
+        message.content || ""
+      );
+      const code = pyMatch?.[1];
       if (!code) return;
 
       // Add a "tool-invocation" message with a "start" state
