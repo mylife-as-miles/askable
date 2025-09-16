@@ -2,13 +2,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Pin, PinOff } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
-  const [chatLinks, setChatLinks] = useState<{ id: string; title: string }[]>(
+  const [chatLinks, setChatLinks] = useState<{ id: string; title: string; pinned?: boolean; modelSlug?: string }[]>(
     []
   );
   const [isLoading, setLoading] = useState(true);
@@ -18,7 +18,8 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const key = "visitedChatIds";
+  const key = "visitedChatIds";
+  const pinKey = (id: string) => `chatPinned:${id}`;
     let ids: string[] = [];
     try {
       ids = JSON.parse(localStorage.getItem(key) || "[]");
@@ -52,9 +53,11 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
               const raw = localStorage.getItem(`chatMeta:${id}`);
               if (!raw) return null;
               const meta = JSON.parse(raw);
-              return { id, title: meta?.title || id, createdAt: meta?.createdAt };
+              const pinned = localStorage.getItem(pinKey(id)) === "1";
+              return { id, title: meta?.title || id, createdAt: meta?.createdAt, pinned, modelSlug: meta?.modelSlug };
             } catch {
-              return { id, title: id };
+              const pinned = localStorage.getItem(pinKey(id)) === "1";
+              return { id, title: id, pinned } as any;
             }
           })
           .filter(Boolean) as { id: string; title: string; createdAt?: string }[];
@@ -64,7 +67,9 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
             const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
             return tb - ta;
           });
-          setChatLinks(metas.map((m) => ({ id: m.id, title: m.title })));
+          // order pinned first, then by recent
+          metas.sort((a: any, b: any) => (b.pinned === true ? 1 : 0) - (a.pinned === true ? 1 : 0));
+          setChatLinks(metas.map((m: any) => ({ id: m.id, title: m.title, pinned: m.pinned, modelSlug: m.modelSlug })));
         }
       })
       .finally(() => setLoading(false));
@@ -76,10 +81,27 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
       const raw = localStorage.getItem(key);
       let ids: string[] = [];
       try { ids = JSON.parse(raw || "[]"); } catch {}
-      ids.forEach((id) => localStorage.removeItem(`chatMeta:${id}`));
+      ids.forEach((id) => {
+        localStorage.removeItem(`chatMeta:${id}`);
+        localStorage.removeItem(`chatPinned:${id}`);
+      });
       localStorage.removeItem(key);
       setChatLinks([]);
       setHasAny(false);
+    } catch {}
+  };
+
+  const togglePin = (id: string) => {
+    try {
+      const k = `chatPinned:${id}`;
+      const current = localStorage.getItem(k) === "1";
+      localStorage.setItem(k, current ? "0" : "1");
+      setChatLinks((prev) => {
+        const updated = prev.map((c) => (c.id === id ? { ...c, pinned: !current } : c));
+        const pinned = updated.filter((c) => c.pinned);
+        const unpinned = updated.filter((c) => !c.pinned);
+        return [...pinned, ...unpinned];
+      });
     } catch {}
   };
 
@@ -130,10 +152,23 @@ export function ChatHistoryMenu({ chatId }: { chatId?: string }) {
                 display: animate ? (open ? "inline-block" : "none") : "inline-block",
                 opacity: animate ? (open ? 1 : 0) : 1,
               }}
-              className="text-foreground text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 max-w-[180px] truncate"
+              className="text-foreground text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 max-w-[160px] truncate"
             >
               {chat.title}
             </motion.span>
+            {chat.modelSlug && (
+              <span className="ml-auto text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                {chat.modelSlug}
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); togglePin(chat.id); }}
+              aria-label={chat.pinned ? "Unpin chat" : "Pin chat"}
+              className="ml-2 text-muted-foreground hover:text-foreground"
+            >
+              {chat.pinned ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
+            </button>
           </Link>
         );
       })}

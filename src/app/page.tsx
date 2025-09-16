@@ -192,7 +192,7 @@ function AskableClient({
       localStorage.setItem(key, JSON.stringify(ids));
       localStorage.setItem(
         metaKey(id),
-        JSON.stringify({ id, title, createdAt: now, fileName: localFile.name })
+        JSON.stringify({ id, title, createdAt: now, fileName: localFile.name, modelSlug: selectedModelSlug })
       );
     } catch {}
     // Pass datasetId via query so the chat page can reconstruct from IndexedDB when DB is unavailable
