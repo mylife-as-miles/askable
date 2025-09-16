@@ -4,6 +4,14 @@ import { toFile } from "openai/uploads";
 
 export const runtime = "nodejs"; // ensure Node runtime for file uploads
 
+export async function GET() {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json({ ok: false, reason: "OPENAI_API_KEY not configured" }, { status: 200 });
+  }
+  return NextResponse.json({ ok: true });
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
