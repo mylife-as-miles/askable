@@ -177,7 +177,7 @@ function AskableClient({
       />
       {/* Large Input Area */}
   {localFile && (
-        <div className="w-full max-w-sm md:max-w-2xl mx-auto">
+        <div className="w-full max-w-sm md:max-w-2xl mx-auto flex justify-center">
           <PromptInput
             value={inputValue}
             onChange={setInputValue}
@@ -197,7 +197,7 @@ function AskableClient({
       )}
       {/* Processing State */}
       {isProcessing && (
-        <div className="w-full max-w-sm my-8 md:max-w-2xl">
+        <div className="w-full max-w-sm my-8 md:max-w-2xl mx-auto text-center">
           <p className="text-muted-foreground text-sm mb-4 animate-pulse">
             <span className="font-medium">Generating suggestions</span>{" "}
             <span className="text-muted-foreground">...</span>
@@ -211,7 +211,7 @@ function AskableClient({
       )}
       {/* Suggestions */}
       {suggestedQuestions.length > 0 && !isProcessing && (
-        <div className="w-full max-w-sm my-8 md:max-w-2xl">
+        <div className="w-full max-w-sm my-8 md:max-w-2xl mx-auto text-center">
           <p className="text-muted-foreground text-sm mb-4">
             <span className="font-medium">Suggestions</span>{" "}
             <span className="text-muted-foreground">based on your uploaded CSV:</span>
@@ -247,6 +247,13 @@ export default function Askable() {
           {!hideHero && (
             <div className="flex flex-col items-center md:items-start pt-16 md:pt-[132px] pb-8 mx-auto w-full">
               <HeroSection />
+            </div>
+          )}
+          {hideHero && (
+            <div className="flex flex-col items-center text-center pt-10 pb-4 mx-auto w-full">
+              <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-foreground">
+                What can I analyze for you?
+              </h1>
             </div>
           )}
           <Suspense fallback={<div>Loading...</div>}>
