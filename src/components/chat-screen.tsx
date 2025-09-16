@@ -227,7 +227,7 @@ export function ChatScreen({
         <div className="p-2 md:p-10 rounded-tl-2xl border border-border bg-card flex flex-col gap-2 flex-1 w-full h-full max-w-screen-2xl mx-auto">
           {/* Context usage bar */}
           <div className="w-full flex flex-col items-center py-2">
-            <div className="w-full max-w-[700px] px-4">
+            <div className="w-full max-w-screen-lg lg:max-w-screen-xl px-4">
               <div className="flex justify-between text-xs text-muted-foreground mb-1">
                 <span>Context used</span>
                 <span>
@@ -246,7 +246,7 @@ export function ChatScreen({
 
           {/* Messages */}
           <div
-            className="flex-1 overflow-y-auto p-4 gap-4 flex flex-col mx-auto max-w-[700px] w-full"
+            className="flex-1 overflow-y-auto p-4 gap-4 flex flex-col mx-auto w-full max-w-screen-lg lg:max-w-screen-xl"
             ref={messagesContainerRef}
           >
           {messages.map((message, messageIdx) => {
